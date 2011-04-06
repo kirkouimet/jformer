@@ -1,5 +1,5 @@
 /* Form */
-.jFormer { font-family: Arial; font-size: 16px; line-height: 1.25em; }
+.jFormer { font-family: Arial; line-height: 1.25em; }
 .jFormer .jFormerTitle { }
 .jFormer .jFormerDescription { }
 .jFormer .jFormerIFrame { border: none; display: none; width: 600px; height: 200px; clear: both; border: 1px solid #CCC; }
@@ -84,11 +84,11 @@
 .jFormer .jFormerTip { position: absolute; top: 0; left: 0; display: none; z-index: 3; max-width: 300px; _width: 300px; }
 .jFormer .jFormerTip .tipArrow { position: relative; display: block; margin: 8px 0 0 1px; width: 12px; height: 16px; background: url(images/tip-arrow-left.png) no-repeat; }
 .jFormer .jFormerTip .tipContent { position: relative; top: -22px; left: 13px; background: #333333; zoom: 1; color: #FFF; z-index: 3; padding: .75em 1em .75em .95em; -webkit-border-radius: 5px; -moz-border-radius: 5px; -moz-box-shadow: 2px 2px 8px #444; -webkit-box-shadow: 2px 2px 8px #444; }
-.jFormer .jFormerTip .tipContent p { font-size: .8em; color: #FFF; margin: 0 0 .5em 0; }
+.jFormer .jFormerTip .tipContent p { font-size: .8em; color: #FFF; margin: 0 0 0 0; padding: 0 0 0 0; }
 .jFormer .jFormerTip .tipContent li { font-size: .8em; }
 .jFormer table .jFormerTip .tipContent p { font-size: 1em; }
 .jFormer table .jFormerTip .tipContent ul { font-size: 1em; }
-.jFormer .jFormerTip .tipContent ul { margin: 0 0 0 1em; padding: 0; }
+.jFormer .jFormerTip .tipContent ul { margin: 0 0 0 1em; padding: 0 0 0 0; }
 .jFormer .jFormerTip .tipContent .tipErrorUl { color: #FF8F8F; }
 .jFormer .jFormerTip .tipContent .tipErrorUl li { list-style-type: disc; font-weight: bold; }
 .jFormer .jFormerTipBlurred { z-index: 2 !important; }

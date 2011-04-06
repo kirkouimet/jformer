@@ -27,7 +27,7 @@ class JFormComponentHidden extends JFormComponent {
         $div->addToAttribute('style', 'display: none;');
 
         // Input tag
-        $input = new Element('input', array(
+        $input = new JFormElement('input', array(
             'type' => 'hidden',
             'id' => $this->id,
             'name' => $this->name,

@@ -67,7 +67,7 @@ class JFormComponentSingleLineText extends JFormComponent {
         $div = $this->generateComponentDiv();
 
         // Add the input tag
-        $input = new Element('input', array(
+        $input = new JFormElement('input', array(
             'type' => $this->type,
             'id' => $this->id,
             'name' => $this->name,

@@ -784,7 +784,7 @@ JFormer = Class.extend({
 
         // Set the height of the wrapper
         self.jFormPageWrapper.height(options.activePageOuterHeight);
-        console.log(options.activePageOuterHeight, self.getActivePage().page.outerHeight());
+        //console.log(options.activePageOuterHeight, self.getActivePage().page.outerHeight());
 
         // Scroll to the current page (prevent weird Firefox bug where the page does not display on soft refresh
         self.scrollToPage(self.currentJFormPage.id, options);
@@ -980,7 +980,7 @@ JFormer = Class.extend({
             self.adjustHeight({adjustHeightDuration: options.adjustHeightDuration});
         }
         else {
-            console.log(self.getActivePage().page.outerHeight());
+            //console.log(self.getActivePage().page.outerHeight());
             self.adjustHeight();
         }
 
@@ -1194,7 +1194,7 @@ JFormer = Class.extend({
             'height' : self.getActivePage().page.outerHeight()
         }, duration);
 
-        console.log(self.getActivePage().page.outerHeight());
+        //console.log(self.getActivePage().page.outerHeight());
     },
 
     submitForm: function(event) {

@@ -1,11 +1,16 @@
 <?php
-// Include the jFormer PHP
-require_once('../source/production/jformer-1.0.1.min.php');
+// Include the jFormer PHP (use an good path in your code)
+if(file_exists('../php/JFormer.php')) {
+    require_once('../php/JFormer.php');
+}
+else if(file_exists('../../php/JFormer.php')) {
+    require_once('../../php/JFormer.php');
+}
 
 // Create the form
 $contactForm = new JFormer('contactForm', array(
     'submitButtonText' => 'Send Message',
-    'title' => '<h2>Contact Us</h2>',
+    'title' => '<h1>Contact Us</h1>',
 ));
 
 // Add components to the form
@@ -27,6 +32,7 @@ $contactForm->addJFormComponentArray(array(
 
 // Set the function for a successful form submission
 function onSubmit($formValues) {
+    
     // Concatenate the name
     if(!empty($formValues->name->middleInitial)) {
         $name = $formValues->name->firstName . ' ' . $formValues->name->middleInitial . ' ' . $formValues->name->lastName;
