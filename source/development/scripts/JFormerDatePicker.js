@@ -142,7 +142,7 @@ DateInput = (function($) {
                     this.changeInput($(event.target).attr("date"));
                 }));
       
-                $("td[date=" + this.dateToString(new Date()) + "]", this.tbody).addClass("jFormComponentDateSelectorToday");
+                $("td[date=\"" + this.dateToString(new Date()) + "\"]", this.tbody).addClass("jFormComponentDateSelectorToday");
       
                 $("td.jFormComponentDateSelectorSelectedDay", this.tbody).mouseover(function() {
                     $(this).addClass("hover")
@@ -153,7 +153,7 @@ DateInput = (function($) {
             };
     
             $('.jFormComponentDateSelectorSelected', this.tbody).removeClass("jFormComponentDateSelectorSelected");
-            $('td[date=' + this.selectedDateString + ']', this.tbody).addClass("jFormComponentDateSelectorSelected");
+            $('td[date="' + this.selectedDateString + '"]', this.tbody).addClass("jFormComponentDateSelectorSelected");
         },
   
         selectDate: function(date) {

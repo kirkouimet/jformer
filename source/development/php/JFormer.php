@@ -49,16 +49,9 @@ class JFormer {
     var $pageNavigatorEnabled = false;
     var $pageNavigator = array();
 
-    // Progress bar
-    var $progressBar = false;
-
     // Splash page
     var $splashPageEnabled = false;
     var $splashPage = array();
-
-    // Save state options
-    var $saveStateEnabled = false;
-    var $saveState = array();
 
     // Animations
     var $animationOptions = null;
@@ -67,14 +60,10 @@ class JFormer {
     var $onSubmitStartClientSide = '';
     var $onSubmitFinishClientSide = '';
 
-    // Security options
-    var $requireSsl = false; // Not implemented yet
-
     // Essential class variables
     var $status = array('status' => 'processing', 'response' => 'Form initialized.');
 
     // Validation
-    var $jValidator;
     var $validationResponse = array();
     var $validationPassed = null;
 
@@ -107,30 +96,9 @@ class JFormer {
             );
         }
 
-        // Set defaults for the save state
-        if(!empty($this->saveState)) {
-            $this->saveStateEnabled = true;
-
-            if(empty($this->saveState['showSavingAlert'])) {
-                $this->saveState['showSavingAlert'] = true;
-            }
-        }
-        else {
-            $this->saveState = array(
-                'interval' => 30,
-                'showSavingAlert' => true,
-            );
-        }
-
         // Set defaults for the splash page
         if(!empty($this->splashPage)) {
             $this->splashPageEnabled = true;
-        }
-        else if($this->saveStateEnabled == true) {
-            $this->splashPage = array(
-                'content' => '',
-                'splashButtonText' => 'Begin'
-            );
         }
 
         // Add the pages from the constructor
@@ -428,222 +396,6 @@ class JFormer {
         return false;
     }
     
-    public function initializeSaveState($username, $password, $formState, $formData) {
-        // Make sure we have a table to work with
-        $this->createSaveStateTable();
-
-        $_SESSION[$this->id]['saveState']['username'] = $username;
-        $_SESSION[$this->id]['saveState']['password'] = $password;
-
-        // Either create a new form or resume an old one
-        if($formState == 'newForm') {
-            // Check to see if the form state exists already
-            $response = $this->getSavedState();
-
-            if($response['status'] == 'failure') {
-                $response = $this->createSaveState($formData);
-            }
-            else {
-                $response['status'] = 'exists';
-                $response['response'] = array('failureNoticeHtml' => 'Form already exists. Either choose to resume the form, or enter a different password to create a new form.');
-            }
-        }
-        else if($formState == 'resumeForm') {
-            $response = $this->getSavedState();
-        }
-
-        return $response;
-    }
-
-    public function createSaveState($formData) {
-        // Make sure we have a table to work with
-        $this->createSaveStateTable();
-
-        // Connect to the database using the form settings
-        $mysqli = new mysqli($this->saveState['database']['host'], $this->saveState['database']['username'], $this->saveState['database']['password'], $this->saveState['database']['database']);
-
-        $sql = 'INSERT INTO `'.$this->saveState['database']['table'].'` (`username`, `password`, `form`, `time_added`) VALUES (\''.$_SESSION[$this->id]['saveState']['username'].'\', MD5(\''.$_SESSION[$this->id]['saveState']['password'].'\'), \''.$formData.'\', NOW())';
-        $query = $mysqli->prepare($sql);
-        if(is_object($query)) {
-            $query->execute();
-        }
-        else {
-            $debug = debug_backtrace();
-            die("Error when preparing statement. Call came from {$debug[1]['function']} on line {$debug[1]['line']} in {$debug[1]['file']}.\n<br /><br />{$mysqli->error}:\n<br /><br />".$sql);
-        }
-
-        if($query->errno) {
-            $response = array("status" => "failure", "response" => $query->error, "sql" => $sql);
-        }
-        else {
-            // Send a save state link
-            $this->sendSaveStateLink();
-            $response = array('status' => 'success', "response" => 'Successfully created a new form state.');
-        }
-
-        return $response;
-    }
-
-    public function sendSaveStateLink() {
-        // Short circuit if they don't have the e-mail options set
-        if(!isset($this->saveState['email'])) {
-            return false;
-        }
-
-        // Set the form headers
-        $headers = 'From: '.$this->saveState['email']['fromName'].' <'.$this->saveState['email']['fromEmail'].'>'."\r\n".'X-Mailer: PHP/'.phpversion();
-
-        // Set the subject
-        $subject = $this->saveState['email']['subject'];
-
-        // Set the e-mail and replace [formUrl] with the real form URL
-        $message = str_replace('[formUrl]', $this->saveState['email']['formUrl'], $this->saveState['email']['message']);
-
-        // Send the message
-        if(mail($_SESSION[$this->id]['saveState']['username'], $subject, $message, $headers)) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    public function saveState($formData) {
-        // Make sure we have a table to work with
-        $this->createSaveStateTable();
-
-        // Connect to the database using the form settings
-        $mysqli = new mysqli($this->saveState['database']['host'], $this->saveState['database']['username'], $this->saveState['database']['password'], $this->saveState['database']['database']);
-
-        $sql = 'UPDATE `'.$this->saveState['database']['table'].'` SET `form` = \''.$formData.'\', `time_updated` = NOW() WHERE `username` = \''.$_SESSION[$this->id]['saveState']['username'].'\' AND `password` = MD5(\''.$_SESSION[$this->id]['saveState']['password'].'\')';
-        $query = $mysqli->prepare($sql);
-        if(is_object($query)) {
-            $query->execute();
-        }
-        else {
-            $debug = debug_backtrace();
-            die("Error when preparing statement. Call came from {$debug[1]['function']} on line {$debug[1]['line']} in {$debug[1]['file']}.\n<br /><br />{$mysqli->error}:\n<br /><br />".$sql);
-        }
-
-        if($query->errno) {
-            $response = array("status" => "failure", "response" => $query->error, "sql" => $sql);
-        }
-        else {
-            $response = array('status' => 'success', "response" => 'Successfully updated the form state.');
-        }
-
-        return $response;
-    }
-
-    public function getSavedState() {
-        // Connect to the database
-        $mysqli = new mysqli($this->saveState['database']['host'], $this->saveState['database']['username'], $this->saveState['database']['password'], $this->saveState['database']['database']);
-
-        // Get the saved state from the appropriate table
-        $sql = 'SELECT * FROM `'.$this->saveState['database']['table'].'` WHERE `username` = \''.$_SESSION[$this->id]['saveState']['username'].'\' AND `password` = MD5(\''.$_SESSION[$this->id]['saveState']['password'].'\')';
-        $query = $mysqli->prepare($sql);
-        if(is_object($query)) {
-            $query->execute();
-        }
-        else {
-            $debug = debug_backtrace();
-            die("Error when preparing statement. Call came from {$debug[1]['function']} on line {$debug[1]['line']} in {$debug[1]['file']}.\n<br /><br />{$mysqli->error}:\n<br /><br />".$sql);
-        }
-        $query->store_result();
-        if($query->errno) {
-            $response = array("status" => "failure", "response" => $query->error, "sql" => $sql);
-        }
-        else if($query->num_rows == 0) {
-            $response = array("status" => "failure", "response" => array('failureNoticeHtml' => 'No form exists for that username and password combination. Try again or start a new form.'));
-        }
-        else {
-            $resultArray = array();
-
-            for($i = 0; $i < $query->num_rows(); $i++) {
-                $resultArray[$i] = array();
-                $boundedVariables = array();
-
-                $meta = $query->result_metadata();
-
-                while($column = $meta->fetch_field()) {
-                    $resultArray[$i][$column->name] = null;
-
-                    $boundedVariables[] = &$resultArray[$i][$column->name];
-                }
-                call_user_func_array(array($query, 'bind_result'), $boundedVariables);
-
-                $query->fetch();
-            }
-
-            foreach($resultArray as &$result) {
-                foreach($result as &$value) {
-                    if(Utility::isJson($value)) {
-                        $value = json_decode($value);
-                    }
-                    else if(Utility::isJson(urldecode($value))) {
-                        $value = json_decode(urldecode($value));
-                    }
-                }
-                $result = json_decode(json_encode($result));
-            }
-
-            //print_r($result);
-
-            $response = array("status" => "success", "response" => $result->form);
-        }
-
-        return $response;
-    }
-
-    public function createSaveStateTable() {
-        $mysqli = new mysqli($this->saveState['database']['host'], $this->saveState['database']['username'], $this->saveState['database']['password'], $this->saveState['database']['database']);
-
-        $sql = '
-            CREATE TABLE IF NOT EXISTS `'.$this->saveState['database']['table'].'` (
-              `id` int(11) NOT NULL AUTO_INCREMENT,
-              `username` varchar(64) NOT NULL,
-              `password` varchar(32) NOT NULL,
-              `form` text,
-              `time_updated` datetime,
-              `time_added` datetime,
-              PRIMARY KEY(`id`),
-              INDEX `'.$this->saveState['database']['table'].'_index`(`id`, `username`, `password`)
-            )
-            ENGINE=MYISAM
-            ROW_FORMAT=default
-        ';
-
-        $query = $mysqli->prepare($sql);
-
-        if(is_object($query)) {
-            $query->execute();
-        }
-        else {
-            $debug = debug_backtrace();
-            die("Error when preparing statement. Call came from {$debug[1]['function']} on line {$debug[1]['line']} in {$debug[1]['file']}.\n<br /><br />{$mysqli->error}:\n<br /><br />".$sql);
-        }
-
-        $query->store_result();
-        if($query->errno) {
-            $response = array("status" => "failure", "response" => $query->error, "sql" => $sql);
-        }
-        else {
-            $response = array("status" => "success", "response" => 'Table `'.$this->saveState['database']['table'].'` created successfully.');
-        }
-
-        return $response;
-    }
-
-    function saveToSession($callbackFunctionName) {
-        // Patch the callback function into $this
-
-        $this->jFormerId = $this->id.uniqid();
-
-        $_SESSION[$this->jFormerId] = $this;
-
-        return $this;
-    }
-
     function processRequest($silent = false) {
         // Are they trying to post a file that is too large?
         if(isset($_SERVER['CONTENT_LENGTH']) && empty($_POST)) {
@@ -712,21 +464,6 @@ class JFormer {
                 $this->resetStatus();
                 exit();
             }
-            // Set the save state username and password
-            else if(isset($_POST['jFormerTask']) && $_POST['jFormerTask'] == 'initializeSaveState') {
-                echo json_encode($this->initializeSaveState($_POST['identifier'], $_POST['password'], $_POST['formState'], $_POST['formData']));
-                exit();
-            }
-            // Get the saved state
-            else if(isset($_POST['jFormerTask']) && $_POST['jFormerTask'] == 'getSavedState') {
-                echo json_encode($this->getSavedState($this->saveState['identifier'], $this->saveState['password']));
-                exit();
-            }
-            // Save the current form state
-            else if(isset($_POST['jFormerTask']) && $_POST['jFormerTask'] == 'saveState') {
-                echo json_encode($this->saveState($_POST['formData']));
-                exit();
-            }
         }
         // If they aren't trying to post something to the form
         else if(!$silent) {
@@ -754,9 +491,6 @@ class JFormer {
         if(!$this->validationTips) {
             $options['options']['validationTips'] = $this->validationTips;
         }
-        if($this->disableAnalytics) {
-            $options['options']['disableAnalytics'] = $this->disableAnalytics;
-        }
         if(!$this->setupPageScroller) {
             $options['options']['setupPageScroller'] = $this->setupPageScroller;
         }
@@ -765,12 +499,6 @@ class JFormer {
         }
         if($this->pageNavigatorEnabled) {
             $options['options']['pageNavigator'] = $this->pageNavigator;
-        }
-        if($this->saveStateEnabled) {
-            $options['options']['saveState'] = $this->saveState;
-            
-            // Don't give your database login out in the options
-            unset($options['options']['saveState']['database']);
         }
         if($this->splashPageEnabled) {
             $options['options']['splashPage'] = $this->splashPage;
@@ -790,9 +518,6 @@ class JFormer {
         }
         if($this->submitProcessingButtonText != 'Processing...') {
             $options['options']['submitProcessingButtonText'] = $this->submitProcessingButtonText;
-        }
-        if($this->progressBar) {
-            $options['options']['progressBar'] = $this->progressBar;
         }
         
         if(empty($options['options'])) {
@@ -842,7 +567,7 @@ class JFormer {
         }
 
         // If a splash is enabled
-        if($this->splashPageEnabled || $this->saveStateEnabled) {
+        if($this->splashPageEnabled) {
             // Create a splash page div
             $splashPageDiv = new JFormElement('div', array(
                 'id' => $this->id.'-splash-page',
@@ -858,35 +583,6 @@ class JFormer {
             }
 
             $splashPageDiv->insert('<div class="jFormerSplashPageContent">'.$this->splashPage['content'].'</div>');
-
-            // If the form can be saved, show the necessary components
-            if($this->saveStateEnabled) {
-                $saveStateIdentifier = new jFormComponentSingleLineText('saveStateIdentifier', 'E-mail address:', array(
-                    'tip' => '<p>We will send form results to this e-mail address.</p>',
-                    'validationOptions' => array('required', 'email'),
-                ));
-                $saveStateStatus = new jFormComponentMultipleChoice('saveStateStatus', 'Starting a new form?',
-                    array(
-                        array('value' => 'newForm', 'label' => 'Yes, let me start a new form', 'checked' => true),
-                        array('value' => 'resumeForm', 'label' => 'No, I want to continue a previous form'),
-                    ),
-                    array(
-                        'multipleChoiceType' => 'radio',
-                        'validationOptions' => array('required'),
-                    )
-                );
-                $saveStatePassword = new jFormComponentSingleLineText('saveStatePassword', 'Create password:', array(
-                    'type' => 'password',
-                    'tip' => '<p>Use this to come back and resume your form.</p>',
-                    'showPasswordStrength' => true,
-                    'validationOptions' => array('required', 'password'),
-                ));
-
-                // Add the components to the class save state variable
-                $this->saveState['components'] = array($saveStateIdentifier->id => $saveStateIdentifier->getOptions(), $saveStateStatus->id => $saveStateStatus->getOptions(), $saveStatePassword->id => $saveStatePassword->getOptions());
-
-                $splashPageDiv->insert($saveStateIdentifier->__toString().$saveStateStatus->__toString().$saveStatePassword->__toString());
-            }
             
             // Create a splash button if there is no custom button ID
             if(!isset($this->splashPage['customButtonId'])) {
@@ -967,16 +663,6 @@ class JFormer {
             // Add the page navigator ul to the div
             $pageNavigatorDiv->insert($pageNavigatorUl);
 
-            // Add the progress bar if it is enabled
-            if($this->progressBar) {
-                $pageNavigatorDiv->insert('<div class="jFormerProgress"><div class="jFormerProgressBar"></div></div>');
-            }
-
-            // Hide the progress bar if there is a splash page
-            if($this->splashPageEnabled) {
-                $pageNavigatorDiv->addToAttribute('style', 'display: none;');
-            }
-
             $formElement->insert($pageNavigatorDiv);
         }
 
@@ -996,7 +682,7 @@ class JFormer {
         $nextButton = new JFormElement('button', array('class' => 'nextButton'));
         $nextButton->update($this->submitButtonText);
         // Don't show the next button
-        if($this->splashPageEnabled || $this->saveStateEnabled) {
+        if($this->splashPageEnabled) {
             $nextButtonLi->setAttribute('style', 'display: none;');
         }
         $nextButtonLi->insert($nextButton);
@@ -1022,7 +708,7 @@ class JFormer {
         $jFormPageCount = 0;
         foreach($this->jFormPageArray as $jFormPage) {
             // Hide everything but the first page
-            if($jFormPageCount != 0 || ($jFormPageCount == 0 && ($this->splashPageEnabled || $this->saveStateEnabled))) {
+            if($jFormPageCount != 0 || ($jFormPageCount == 0 && ($this->splashPageEnabled))) {
                 $jFormPage->style .= 'display: none;';
             }
 
@@ -1139,6 +825,4 @@ class JFormer {
 if(isset($_GET['iframe'])) {
     echo '';
 }
-
-
 ?>

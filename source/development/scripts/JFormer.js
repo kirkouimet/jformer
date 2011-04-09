@@ -43,14 +43,10 @@ JFormer = Class.extend({
                     hideDuration: 0
                 }
             },
-            trackBind: false,
-            disableAnalytics: false,
             setupPageScroller: true,
             validationTips: true,
             pageNavigator: false,
-            saveState: false,
             splashPage: false,
-            progressBar: false,
             alertsEnabled: true,
             clientSideValidation: true,
             debugMode: false,
@@ -59,18 +55,6 @@ JFormer = Class.extend({
             onSubmitStart: function() {return true;},
             onSubmitFinish: function() {return true;}
         }, options.options || {});
-
-       
-        // Show number of binds
-        if(this.options.trackBind){
-            jQuery.fn.bind = function(bind) {
-                return function () {
-                    console.count("jQuery Bind Count");
-                    console.log("jQuery Bind %o", arguments[0] , this);
-                    return bind.apply(this, arguments);
-                };
-            }(jQuery.fn.bind);
-        }
 
         // Class variables
         this.id = formId;
@@ -87,11 +71,6 @@ JFormer = Class.extend({
         this.blurredTips = [];
         this.lastEnabledPage = false;
 
-        // Stats
-        this.initializationTime = (new Date().getTime()) / 1000;
-        this.durationInSeconds = 0;
-        this.jFormComponentCount = 0;
-
         // Controls
         this.control = this.form.find('ul.jFormerControl');
         this.controlNextLi = this.form.find('ul.jFormerControl li.nextLi');
@@ -99,14 +78,11 @@ JFormer = Class.extend({
         this.controlPreviousLi = this.form.find('ul.jFormerControl li.previousLi');
         this.controlPreviousButton = this.controlPreviousLi.find('button.previousButton');
 
-        // Save states
-        this.saveIntervalSetTimeoutId = null;
-
         // Initialize all of the pages
         this.initPages(options.jFormPages);
 
         // Add a splash page if enabled
-        if(this.options.splashPage !== false || this.options.saveState !== false) {
+        if(this.options.splashPage !== false) {
             if(this.options.splashPage == false) {
                 this.options.splashPage = {};
             }
@@ -118,7 +94,6 @@ JFormer = Class.extend({
             this.maxJFormPageIdArrayIndexReached = 0;
             this.currentJFormPage = this.jFormPages[this.jFormPageIdArray[0]];
             this.currentJFormPage.active = true;
-            this.currentJFormPage.startTime = (new Date().getTime() / 1000 );
             // Add the page navigator
             if(this.options.pageNavigator !== false) {
                 this.addPageNavigator();
@@ -148,13 +123,10 @@ JFormer = Class.extend({
         // Check dependencies
         this.checkDependencies(true);
 
-        // Analytics - disabled for now
-        //this.recordAnalytics();
-
         // Record when the form is finished initializing
         this.initializing = false;
 
-        //functions that need to run after the page is completely loaded
+        // Functions that need to run after the page is completely loaded
         var self = this;
         $(window).load(function(){
             self.adjustHeight();
@@ -194,7 +166,6 @@ JFormer = Class.extend({
                 }
 
                 each(jFormSectionValue.jFormComponents, function(jFormComponentKey, jFormComponentValue) {
-                    self.jFormComponentCount = self.jFormComponentCount + 1;
                     var jFormComponent = new window[jFormComponentValue.type](jFormSection, jFormComponentKey, jFormComponentValue.type, jFormComponentValue.options);
                     jFormSection.addComponent(jFormComponent);
 
@@ -293,7 +264,6 @@ JFormer = Class.extend({
         this.options.splashPage.jFormPage.addSection(new JFormSection(this.options.splashPage.jFormPage, this.form.find('div.jFormerSplashPage').attr('id') + '-section'));
         this.options.splashPage.jFormPage.page.width(this.form.width());
         this.options.splashPage.jFormPage.active = true;
-        this.options.splashPage.jFormPage.startTime = (new Date().getTime() / 1000 );
 
         // Set the splash page as the current page
         this.currentJFormPage = this.options.splashPage.jFormPage;
@@ -315,17 +285,10 @@ JFormer = Class.extend({
         // Hide the other native controls
         this.setupControl();
 
-        // Handle save state options on the splash page
-        if(this.options.saveState !== false) {
-            self.addSaveStateToSplashPage();
-        }
-        // If there is no save state, just setup the button to start the form
-        else {
-            this.options.splashPage.controlSplashButton.bind('click', function(event) {
-                event.preventDefault();
-                self.beginFormFromSplashPage(false);
-            });
-        }
+        this.options.splashPage.controlSplashButton.bind('click', function(event) {
+            event.preventDefault();
+            self.beginFormFromSplashPage(false);
+        });
     },
 
     beginFormFromSplashPage: function(initSaveState, loadForm) {
@@ -359,167 +322,6 @@ JFormer = Class.extend({
                 self.renumberPageNavigator();
             }});
         }
-
-        // Initialize the save state is set
-        if(initSaveState) {
-            self.initSaveState();
-        }
-    },
-
-    addSaveStateToSplashPage: function() {
-        var self = this;
-        // Initialize the three save state components
-        
-        var sectionId = self.options.splashPage.jFormPage.id + '-section';
-        $.each(self.options.saveState.components, function(jFormComponentId, jFormComponentOptions) {
-            self.options.splashPage.jFormPage.jFormSections[sectionId].addComponent(new window[jFormComponentOptions.type](self.options.splashPage.jFormPage.jFormSections[sectionId], jFormComponentId, jFormComponentOptions.type, jFormComponentOptions.options));
-        });
-
-        // When they change the option from new to resume, alter the label and peform maintenance
-        var formState = 'newForm'; // Default value
-        var saveStateJFormComponents = this.options.splashPage.jFormPage.jFormSections[sectionId].jFormComponents;
-        saveStateJFormComponents.saveStateStatus.component.find('input:option').bind('click', {context: this}, function(event) {
-            // Remove any failure notices
-            self.form.find('li.jFormerFailureNotice').remove();
-
-            formState = $(event.target).val();
-            // Change the form to reflect building a new form
-            if(formState == 'newForm') {
-                saveStateJFormComponents.saveStatePassword.component.find('label').html('Create password: <span class="jFormComponentLabelRequiredStar"> *</span>');
-                self.options.splashPage.controlSplashButton.text('Begin');
-            }
-            // Change the form to reflect resuming a form
-            else if(formState == 'resumeForm') {
-                saveStateJFormComponents.saveStatePassword.component.find('label').html('Form password: <span class="jFormComponentLabelRequiredStar"> *</span>');
-                self.options.splashPage.controlSplashButton.text('Resume');
-            }
-        });
-
-        // Add a special event listener to the splash page start button
-        self.options.splashPage.controlSplashButton.bind('click', {context: this}, function(event) {
-            event.preventDefault();
-
-            // Remove any failure notice
-            self.form.find('li.jFormerFailureNotice').remove();
-
-            var validateSaveStateIdentifier = saveStateJFormComponents.saveStateIdentifier.validate();
-            var validateSaveStatePassword = saveStateJFormComponents.saveStatePassword.validate();
-            if(validateSaveStateIdentifier && validateSaveStatePassword) {
-                // Set the form button text
-                if(formState == 'newForm') {
-                    //console.log('newForm');
-                    self.options.splashPage.controlSplashButton.text('Creating form...');
-                    var formJson = {};
-                    formJson.meta = {};
-                    formJson.meta.totalTime = 0;
-                    formJson.meta.currentPage = self.getActivePage().id;
-                    formJson.meta.maxPageIndex = self.maxJFormPageIdArrayIndexReached;
-                    formJson.form = {};
-                }
-                else {
-                    self.options.splashPage.controlSplashButton.text('Loading form...');
-                }
-
-                $(event.target).attr('disabled', 'disabled');
-                $.ajax({
-                    url: self.form.attr('action'),
-                    type: 'post',
-                    data: {
-                        'jFormerTask': 'initializeSaveState',
-                        'identifier': saveStateJFormComponents.saveStateIdentifier.getValue(),
-                        'password': saveStateJFormComponents.saveStatePassword.getValue(),
-                        'formState' : formState,
-                        'formData' : jFormerUtility.jsonEncode(formJson)
-                    },
-                    dataType: 'json',
-                    success: function(json) {
-                        // If the form was successfully initialized
-                        if(json.status == 'success'){
-                            if(formState == 'newForm'){
-                                self.beginFormFromSplashPage(true, false);
-                            }
-                            else if(formState == 'resumeForm') {
-                                self.beginFormFromSplashPage(true, true);
-
-                                // Set the duration from the form save state
-                                self.durationInSeconds = json.response.meta.totalTime;
-                                
-                                // Load the data from the save state
-                                self.setData(json.response.form);
-
-                                //setup the pageNavigator
-                                self.maxJFormPageIdArrayIndexReached = json.response.meta.maxPageIndex;
-                                if(self.options.pageNavigator != null) {
-                                    self.updatePageNavigator();
-                                }
-
-                                // Scroll to the active page, set in the form save state
-                                if(self.jFormPages[json.response.meta.currentPage] == undefined){
-                                    json.response.meta.currentPage = self.jFormPages[self.jFormPageIdArray[0]].id;
-                                }
-
-                                if(self.jFormPages[json.response.meta.currentPage].active === false) {
-                                    self.currentJFormPageIdArrayIndex = $.inArray(json.response.meta.currentPage, self.jFormPageIdArray);
-
-                                    self.jFormPages[json.response.meta.currentPage].scrollTo({
-                                        onAfter: function() {
-                                            self.options.splashPage.jFormPage.hide();
-                                        }
-                                    });
-                                }
-                                
-                            }
-                        }
-                        // If the form already exists
-                        else if(json.status == 'exists') {
-                            // Set the form button text
-                            if(formState == 'newForm') {
-                                self.options.splashPage.controlSplashButton.text('Begin');
-                            }
-                            else {
-                                self.options.splashPage.controlSplashButton.text('Resume');
-                            }
-
-                            if(json.response.failureNoticeHtml) {
-                                self.control.append($('<li class="jFormerFailureNotice jFormComponentValidationFailed">'+json.response.failureNoticeHtml+'</li>'));
-                                
-                            }
-                            $(event.target).removeAttr('disabled');
-                        }
-                        // If the request failed
-                        else if(json.status == 'failure') {
-                            // Set the form button text
-                            if(formState == 'newForm') {
-                                self.options.splashPage.controlSplashButton.text('Begin');
-                            }
-                            else {
-                                self.options.splashPage.controlSplashButton.text('Resume');
-                            }
-
-                            // Set the failure notice
-                            if(json.response.failureNoticeHtml){
-                                self.control.append($(['<li class="jFormerFailureNotice jFormComponentValidationFailed">',json.response.failureNoticeHtml,'</li>'].join('')));
-                                
-                            }
-                            // Execute any failure javascript
-                            if(json.response.failureJs){
-                                eval(json.response.failureJs);
-                            }
-                            $(event.target).removeAttr('disabled');
-                            
-                        }
-                    },
-                    error: function(XMLHttpRequest, textStatus, errorThrown){
-                        self.showAlert('There was a problem initializing the form.');
-                        self.setupControl();
-                    }
-                });
-           }
-           // If the save state form does not validate, focus on the first failed component
-           else {
-               self.options.splashPage.jFormPage.focusOnFirstFailedComponent();
-           }
-        });
     },
 
     addPageNavigator: function(){
@@ -683,55 +485,6 @@ JFormer = Class.extend({
         this.form.bind('submit', {context: this}, function(event) {
             event.preventDefault();
             self.submitEvent(event);
-        });
-    },
-
-    initSaveState: function() {
-        var self = this, interval = this.options.saveState.interval * 1000;
-        if(this.options.saveState === null){
-            return;
-        }
-        this.saveIntervalSetTimeoutId = setInterval(function(){
-            self.saveState(self.options.saveState.showSavingAlert);
-        }, interval);
-        this.saveStateInitialized = true;
-        return;
-    },
-
-    saveState: function(showMessage) {
-        if(this.saveRunning == true){
-            return true;
-        }
-        this.saveRunning = true;
-        var self = this;
-        var tempDurationInSeconds = this.durationInSeconds + this.getTimeActive();
-        var formJson = {};
-        formJson.meta = {};
-        formJson.meta.totalTime = tempDurationInSeconds;
-        formJson.meta.currentPage = this.getActivePage().id;
-        formJson.meta.maxPageIndex = this.maxJFormPageIdArrayIndexReached;
-        formJson.form = this.getData();
-        $.ajax({
-            url: self.form.attr('action'),
-            type: 'post',
-            data: {
-                'jFormerTask': 'saveState',
-                'formData': jFormerUtility.jsonEncode(formJson)
-            },
-            dataType: 'json',
-            success: function(json) {
-                if(showMessage === true){
-                    self.showAlert('Saving...');
-                }
-                self.saveRunning = false;
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown){
-                if(textStatus != 'error'){
-                    errorThrown = textStatus ? textStatus : 'unknown';
-                }
-                self.showAlert('There was an error saving your form, we\'ll try again : '+ errorThrown, 'error');
-                self.saveRunning = false;
-            }
         });
     },
 
@@ -953,7 +706,6 @@ JFormer = Class.extend({
 
         // Remember the active duration time of the page
         var oldJFormPage = this.getActivePage();
-        oldJFormPage.durationActiveInSeconds = oldJFormPage.durationActiveInSeconds + oldJFormPage.getTimeActive();
 
         // Show every page so you can see them as you scroll through
         $.each(this.jFormPages, function(jFormPageKey, jFormPage) {
@@ -1062,15 +814,6 @@ JFormer = Class.extend({
     getActivePage: function() {
         // if active page has not been set
         return this.currentJFormPage;
-    },
-
-    getTimeActive: function(){
-        var currentTotal = 0;
-        $.each(this.jFormPages, function(key, page){
-           currentTotal = currentTotal + page.durationActiveInSeconds;
-        });
-        currentTotal = currentTotal + this.getActivePage().getTimeActive();
-        return currentTotal;
     },
 
     hideInactivePages: function(){
@@ -1552,44 +1295,6 @@ JFormer = Class.extend({
         modal.css({'top': topMargin, 'left': leftMargin});
     },
 
-    recordAnalytics: function() {
-        var self = this;
-        if(!this.options.disableAnalytics) {
-            setTimeout(function() {
-                var jsProtocol = "https:" == document.location.protocol ? "https://ssl." : "http://www.";
-                var image = $('<img src="'+jsProtocol+'jformer.com/analytics/analytics.gif?pageCount='+self.jFormPageIdArray.length+'&componentCount='+self.jFormComponentCount+'&formId='+self.id+'" style="display: none;" />');
-                self.form.append(image);
-                image.remove();
-            }, 3000);
-        }
-    },
-
-    updateProgressBar: function() {
-        var totalRequired = 0;
-        var totalRequiredCompleted = 0;
-        $.each(this.jFormPages, function(pageKey, pageObject){
-            $.each(pageObject.jFormSections, function(sectionKey, sectionObject){
-                $.each(sectionObject.jFormComponents, function(componentKey, componentObject){
-                    if(componentObject.isRequired === true && (componentObject.disabledByDependency === false && sectionObject.disabledByDependency === false)) {
-                        if(componentObject.type != 'JFormComponentLikert'){
-                            totalRequired = totalRequired + 1;
-                            if(componentObject.requiredCompleted === true){
-                                totalRequiredCompleted = totalRequiredCompleted + 1;
-                            }
-                        }
-                    }
-                });
-            });
-        });
-
-        var percentCompleted = parseInt((totalRequiredCompleted / totalRequired) * 100);
-
-        this.form.find('.jFormerProgressBar').animate({
-            'width': percentCompleted+'%'
-        }, 500)
-        .html('<p>'+percentCompleted + '%</p>');
-    },
-
     addBlurTipListener: function(){
         var self = this;
         $(document).bind('blurTip', function(event, tipElement, action){    
@@ -1615,7 +1320,6 @@ JFormer = Class.extend({
             }
         });
         //console.log('blurring tips', tipElement, action);
-        
         //console.log(this.blurredTips);
     }
 });

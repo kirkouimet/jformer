@@ -141,10 +141,6 @@ JFormSection = Class.extend({
         return this;
     },
 
-    removeInstance: function() {
-        return this;
-    },
-
     nameSectionInstance: function(component) {
         var self = this,
         ending = '';

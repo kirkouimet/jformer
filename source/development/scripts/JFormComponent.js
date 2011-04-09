@@ -172,10 +172,6 @@ JFormComponent = Class.extend({
             if(self.parentJFormSection.parentJFormPage.jFormer.options.clientSideValidation) {
                 self.validate();
             }
-            // Update the progress bar
-            if(self.parentJFormSection.parentJFormPage.jFormer.options.progressBar !== false) {
-                self.parentJFormSection.parentJFormPage.jFormer.updateProgressBar();
-            }
         });
     },
 

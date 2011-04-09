@@ -32,7 +32,6 @@ JFormPage = Class.extend({
         this.active = false;
         this.validationPassed = null;
         this.disabledByDependency = false;
-        this.durationActiveInSeconds = 0;
     },
 
     addSection: function(section) {
@@ -69,11 +68,6 @@ JFormPage = Class.extend({
         });
         this.formData = data;
         return this.formData;
-    },
-
-    getTimeActive: function(){
-        var currentActiveTime =(new Date().getTime() / 1000) -  this.startTime ;
-        return currentActiveTime;
     },
 
     validate: function(silent) {
