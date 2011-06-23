@@ -166,6 +166,12 @@ class JFormSection {
         return $this->errorMessageArray;
     }
 
+    function updateRequiredText($requiredText) {
+        foreach($this->jFormComponentArray as $jFormComponent) {
+            $jFormComponent->updateRequiredText($requiredText);
+        }
+    }
+
     function getOptions() {
         $options = array();
         $options['options'] = array();

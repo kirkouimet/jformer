@@ -11,13 +11,15 @@ else if(file_exists('../../php/JFormer.php')) {
 $loginForm = new JFormer('loginForm', array(
     'title' => '<h1>Login</h1>',
     'submitButtonText' => 'Login',
+    'requiredText' => ' (required)'
 ));
 
 // Add components to the section
 $loginForm->addJFormComponentArray(array(
     new JFormComponentSingleLineText('username', 'Username:', array(
         'validationOptions' => array('required', 'username'),
-        'tip' => '<p>The demo login is <b>admin</b>.</p>',
+        'tip' => '<p>The <a href="/">demo</a> login is <b>admin</b>.</p>',
+        'persistentTip' => true
     )),
     new JFormComponentSingleLineText('password', 'Password:', array(
         'type' => 'password',

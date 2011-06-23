@@ -14,7 +14,8 @@ JFormComponent = Class.extend({
             instanceOptions: null,              // options {max:#, addButtonText:string, removeButtonText:string}
             tipTargetPosition: 'rightMiddle',   // 'rightMiddle' - Where the tooltip will be placed in relation to the component
             tipCornerPosition: 'leftTop',       // 'leftTop' - The corner of the tip that will point to the tip target position
-            isInstance: false
+            isInstance: false,
+            persistentTip: false
         }, options || {});
 
         //console.count(jFormComponentType);
@@ -59,15 +60,17 @@ JFormComponent = Class.extend({
         this.initialize();
         this.reformValidations();
 
+        // Add a tip if there is content to add
+        if($.trim(this.tipDiv.html()) !== '') {
+            this.addTip();
+        }
+
         // Initiation functions
         this.addHighlightListeners();
         this.defineComponentChangedEventListener();
         this.catchComponentChangedEventListener();
 
-        // Add a tip if there is content to add
-        if($.trim(this.tipDiv.html()) !== '') {
-            this.addTip();
-        }
+        
 
         // Tip listeners
         this.addTipListeners();
@@ -82,6 +85,7 @@ JFormComponent = Class.extend({
                 self.highlight();
             } );
             $(input).bind('blur', function(event) {
+                
                 self.removeHighlight();
 
                 // Handle multifield highlight and validation
@@ -89,7 +93,45 @@ JFormComponent = Class.extend({
                     self.validate();
                 }
             });
+
         });
+
+        // Multiple choice
+        if(this.tip !== null) {
+            if(this.tip.persistent){
+                this.tip.getTooltip().mouseenter(function(event) {
+                    $(document).bind('click', function(clickevent){
+
+                        if($(clickevent.target).closest('.jFormerTip').length != 0 || $(clickevent.target).is(':focus')) {
+                            return;
+                        } else {
+                            self.removeHighlight();
+                        }
+                    });
+                    self.component.find(':input:not(button):not(hidden)').each(function(key, input) {
+                        $(input).unbind('blur');
+                    });
+                });
+                this.tip.getTooltip().mouseleave(function(event) {
+
+                    self.component.find(':input:not(button):not(hidden)').each(function(key, input) {
+                        $(input).bind('blur', function(event) {
+
+                            self.removeHighlight();
+
+                            // Handle multifield highlight and validation
+                            if((self.type == 'JFormComponentName' || self.type == 'JFormComponentAddress' || self.type == 'JFormComponentCreditCard') && self.changed === true){
+                                self.validate();
+                            }
+                        });
+                    });
+                });
+                this.tip.getTooltip().find('.jFormerTipClose').bind('click', function(){
+                    $(document).unbind('click');
+                   self.removeHighlight();
+                });
+            }
+        }
 
         // Multiple choice
         if(this.component.find('input:checkbox, input:radio').length > 0) {
@@ -179,6 +221,9 @@ JFormComponent = Class.extend({
         // Add the highlight class and trigger the highlight
         this.component.addClass('jFormComponentHighlight').trigger('jFormComponent:highlighted', this.component);
         this.component.trigger('jFormComponent:showTip', this.component);
+        if(this.tip !== null){
+
+        }
     },
 
     removeHighlight: function() {
@@ -253,9 +298,15 @@ JFormComponent = Class.extend({
               if(!self.disabledByDependency){
                 self.addInstance();
               }
-              
           });
       }
+    },
+
+    // Creates instance objects for pre-generated instances
+    addInitialInstances: function() {
+        if(this.options.instanceOptions !== null && this.options.instanceOptions.initialValues !== undefined && this.options.instanceOptions.initialValues !== null) {
+            this.setData(this.options.instanceOptions.initialValues);
+        }
     },
 
     addInstance: function() {
@@ -340,12 +391,9 @@ JFormComponent = Class.extend({
                 }
             }
 
-
-
             this.nameInstance(instanceClone);
             
             var instanceObject = this.createInstanceObject(instanceClone, this.options);
-
             this.instanceArray.push(instanceObject);
             this.relabelInstances(this.instanceArray, animationOptions);
             if(this.instanceArray.length == this.options.instanceOptions.max && this.options.instanceOptions.max !== 0){
@@ -384,7 +432,6 @@ JFormComponent = Class.extend({
                 this.disableByDependency(true);
             }
             
-
             // Resize the page
             //parent.parentJFormSection.parentJFormPage.scrollTo();
         }
@@ -485,7 +532,7 @@ JFormComponent = Class.extend({
         if(typeof(this.tip) !== 'function') {
             // Create the tip
             var tip = this.tipTarget.simpletip({
-                persistent: true,
+                persistent: self.options.persistentTip,
                 focus: true,
                 position: 'topRight',
                 content: self.tipDiv,
@@ -747,16 +794,8 @@ JFormComponent = Class.extend({
             animationOptions = this.parentJFormSection.parentJFormPage.jFormer.options.animationOptions.dependency;
         }
 
-        
-        
-         
-
-
-        // If the form is initializing
-        
-
-        // If the condition is different then the current condition
-        if(this.disabledByDependency !== disable) {
+        // If the condition is different then the current condition or if the form is initializing
+        if(this.disabledByDependency !== disable || this.parentJFormSection.parentJFormPage.jFormer.initializing) {
             // Disable the component
             if(disable) {
                 // Clear the validation to prevent validation issues with disabled component
@@ -806,8 +845,6 @@ JFormComponent = Class.extend({
                             self.parentJFormSection.parentJFormPage.jFormer.adjustHeight(animationOptions);
                         }
                     }
-                    
-                    
                 }
                 // Unlock the component
                 else {

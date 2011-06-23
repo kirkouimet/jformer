@@ -163,6 +163,12 @@ class JFormPage {
         return $options;
     }
 
+    function updateRequiredText($requiredText) {
+        foreach($this->jFormSectionArray as $jFormSection) {
+            $jFormSection->updateRequiredText($requiredText);
+        }
+    }
+
     /**
      *
      * @return string

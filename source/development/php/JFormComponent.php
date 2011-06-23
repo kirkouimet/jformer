@@ -15,6 +15,7 @@ abstract class JFormComponent {
     var $label = null;  // Must be implemented by child class
     var $labelClass = 'jFormComponentLabel';
     var $labelRequiredStarClass = 'jFormComponentLabelRequiredStar';
+    var $requiredText = ' *'; // can be overridden at the form level;
 
     // Helpers
     var $tip = null;
@@ -35,6 +36,7 @@ abstract class JFormComponent {
     var $errorMessageArray = null;
     var $passedValidation = null;
     var $showErrorTipOnce = false;
+    var $persistentTip = false;
 
     /**
      * Initialize
@@ -182,6 +184,10 @@ abstract class JFormComponent {
         if($this->showErrorTipOnce) {
             $options['options']['showErrorTipOnce'] = $this->showErrorTipOnce;
         }
+
+        if($this->persistentTip){
+            $options['options']['persistentTip'] = $this->persistentTip;
+        }
         
         // Instances
         if(!empty($this->instanceOptions)) {
@@ -254,6 +260,10 @@ abstract class JFormComponent {
         return $componentDiv;
     }
 
+    function updateRequiredText($requiredText) {
+        $this->requiredText = $requiredText;
+    }
+
     function generateComponentLabel() {
         if(empty($this->label)) {
             return '';
@@ -270,7 +280,7 @@ abstract class JFormComponent {
             $labelRequiredStarSpan = new JFormElement('span', array(
                 'class' => $this->labelRequiredStarClass
             ));
-            $labelRequiredStarSpan->update(' *');
+            $labelRequiredStarSpan->update($this->requiredText);
             $label->insert($labelRequiredStarSpan);
         }
 

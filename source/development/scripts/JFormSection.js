@@ -9,7 +9,6 @@ JFormSection = Class.extend({
             instanceOptions: null              // options {max:#, addButtonText:string, removeButtonText:string}
         }, options || {});
 
-
         // Class variables
         this.parentJFormPage = parentJFormPage;
         this.id = sectionId;
@@ -22,7 +21,10 @@ JFormSection = Class.extend({
             this.instanceArray = null;
             this.clone = null;                  // clone of the original html.. only initiates if instances are turned on...
         }
-        else { // do parentInstance functions
+        // Do parentInstance functions
+        else {
+            this.instanceArray = [this];
+
             if(this.options.instanceOptions != null){
                 this.clone = this.section.clone();
                 this.iterations = 1;
@@ -45,7 +47,7 @@ JFormSection = Class.extend({
                     addButton.hide();
                 } 
             }
-            this.section.after(addButton);
+            this.instanceArray[this.instanceArray.length - 1].section.after(addButton);
             this.parentJFormPage.page.find('#'+buttonId).bind('click', function(event){
                 event.preventDefault();
                 if(!self.disabledByDependency){
@@ -55,13 +57,43 @@ JFormSection = Class.extend({
         }
     },
 
-    addSectionInstance: function() {
+    // Creates instance objects for pre-generated instances
+    addInitialSectionInstances: function() {
+        if(this.options.instanceOptions !== null && this.options.instanceOptions.initialValues !== undefined && this.options.instanceOptions.initialValues !== null) {
+
+            var count = this.options.instanceOptions.initialValues.length - 1;
+            for(var i = 0; i < count; i++) {
+                this.addSectionInstance(true)
+            }
+
+            // Move the add button
+            var addButton = $('#'+this.id+'-addInstance');
+            this.instanceArray[this.instanceArray.length - 1].section.after(addButton);
+        }
+    },
+
+    addSectionInstance: function(sectionHtmlExists) {
         var parent = this;
         if(this.instanceArray.length < this.options.instanceOptions.max || this.options.instanceOptions.max === 0){
             this.iterations++;
-            var instanceClone = this.clone.clone(),
-            buttonId = this.id+'-removeInstance',
-            removeButton = '<button id="'+buttonId+'" class="jFormSectionRemoveInstanceButton">' + this.options.instanceOptions.removeButtonText + '</button>';
+            var instanceClone;
+
+            // Do not use a clone of the first section if the section HTML has already been generated
+            if(sectionHtmlExists) {
+                instanceClone = $('#'+this.id+'-section'+this.iterations);
+            }
+            else {
+                instanceClone = this.clone.clone();
+
+                // Rename the section instance
+                this.nameSectionInstance(instanceClone, sectionHtmlExists);
+            }
+
+            // Create the remove button
+            var removeButtonId = this.id+'-removeInstance',
+            removeButton = '<button id="'+removeButtonId+'" class="formSectionRemoveInstanceButton">'+this.options.instanceOptions.removeButtonText+'</button>';
+
+            // Set the default animation options
             var animationOptions = {};
             if(this.options.instanceOptions.animationOptions !== undefined){
                 $.extend(animationOptions, this.parentJFormPage.jFormer.options.animationOptions.instance, this.options.instanceOptions.animationOptions);
@@ -70,19 +102,20 @@ JFormSection = Class.extend({
             }
             //console.log(animationOptions);
             $(instanceClone).append(removeButton);
-                instanceClone.find('#'+buttonId).bind('click', function(event){
+            instanceClone.find('#'+buttonId).bind('click', function(event){
                 var target = $(event.target);
                 event.preventDefault();
                 parent.instanceArray = $.map(parent.instanceArray, function(cloneId, index){
-                   if (cloneId.section.attr('id') ==  target.parent().attr('id')){
+                    if (cloneId.section.attr('id') ==  target.parent().attr('id')){
                         cloneId = null;
-                   }
-                   return cloneId;
+                    }
+                    return cloneId;
                 });
                 if(animationOptions.removeEffect == 'none' || animationOptions.removeDuration === 0){
                     target.parent().remove();
                     target.remove();
-                } else {
+                }
+                else {
                     if(animationOptions.removeEffect == 'slide'){
                         target.parent().slideUp(animationOptions.removeDuration, function(){
                             target.parent().remove();
@@ -92,7 +125,8 @@ JFormSection = Class.extend({
                         //parent.parentJFormPage.jFormer.jFormPageWrapper.dequeue();
                         parent.parentJFormPage.jFormer.adjustHeight(animationOptions);
 
-                    }else {
+                    }
+                    else {
                         target.parent().fadeOut(animationOptions.removeDuration, function(){
                             target.parent().remove();
                             target.remove();
@@ -105,43 +139,54 @@ JFormSection = Class.extend({
                 if(parent.instanceArray.length < parent.options.instanceOptions.max || parent.options.instanceOptions.max === 0){
                     parent.parentJFormPage.page.find('#'+parent.id+'-addInstance').show();
                 }
+
+                // Relabel the instance array
                 parent.relabelSectionInstances(parent.instanceArray, animationOptions);
             });
-            //put that section in there, but hide it first, just in case
-            instanceClone.hide();
-            this.parentJFormPage.page.find('#'+this.id+'-addInstance').before(instanceClone);
-            // no animation
-            if(animationOptions.appearEffect == 'none' || animationOptions.appearDuration === 0){
-               // console.log('instant');
-                instanceClone.show();
-            // animation the instance
-            } else {
-                if(animationOptions.appearEffect == 'slide'){
+
+            // Add the clone of the instance only if it not already pre-generated
+            if(!sectionHtmlExists) {
+                // Put the section in there, but hide it first, just in case
+                instanceClone.hide();
+                this.parentJFormPage.page.find('#'+this.id+'-addInstance').before(instanceClone);
+                // no animation
+                if(animationOptions.appearEffect == 'none' || animationOptions.appearDuration === 0){
+                    instanceClone.show();
+                }
+                // Show the instance section with an animation
+                else {
+                    if(animationOptions.appearEffect == 'slide'){
                     
-                    instanceClone.slideDown(animationOptions.appearDuration, function(){
+                        instanceClone.slideDown(animationOptions.appearDuration, function(){
+                            //parent.parentJFormPage.jFormer.jFormPageWrapper.dequeue();
+                            parent.parentJFormPage.jFormer.adjustHeight(animationOptions);
+                        });
+                    }
+                    else {
+                        instanceClone.fadeIn(animationOptions.appearDuration, function(){});
                         //parent.parentJFormPage.jFormer.jFormPageWrapper.dequeue();
                         parent.parentJFormPage.jFormer.adjustHeight(animationOptions);
-                    });                    
-                }else {
-                    
-                    instanceClone.fadeIn(animationOptions.appearDuration, function(){});
-                    //parent.parentJFormPage.jFormer.jFormPageWrapper.dequeue();
-                    parent.parentJFormPage.jFormer.adjustHeight(animationOptions);
+                    }
                 }
             }
 
             this.nameSectionInstance(instanceClone);
             var instanceObject = this.createSectionInstanceObject(instanceClone, this.options);
             this.instanceArray.push(instanceObject);
-            this.relabelSectionInstances(this.instanceArray, animationOptions);
-            if (this.instanceArray.length >= this.options.instanceOptions.max && this.options.instanceOptions.max !== 0) {
-                this.parentJFormPage.page.find('#'+this.id+'-addInstance').hide();
+
+            // Add the clone of the instance only if it not already pregenerated
+            if(!sectionHtmlExists) {
+                this.relabelSectionInstances(this.instanceArray, animationOptions);
+                if (this.instanceArray.length >= this.options.instanceOptions.max && this.options.instanceOptions.max !== 0) {
+                    this.parentJFormPage.page.find('#'+this.id+'-addInstance').hide();
+                }
             }
         }
+
         return this;
     },
 
-    nameSectionInstance: function(component) {
+    nameSectionInstance: function(component, sectionHtmlExists) {
         var self = this,
         ending = '';
         $(component).attr('id', $(component).attr('id')+ '-section'+this.iterations);
@@ -159,11 +204,11 @@ JFormSection = Class.extend({
 
         function changeName(child, attribute){
             ending = getEnding($(child).attr(attribute)) ;
-                if(ending == ''){
-                    $(child).attr(attribute, $(child).attr(attribute) +'-section'+self.iterations+ending);
-                }else {
-                    $(child).attr(attribute, $(child).attr(attribute).replace(ending, '-section'+self.iterations+ending));
-                }
+            if(ending == ''){
+                $(child).attr(attribute, $(child).attr(attribute) +'-section'+self.iterations+ending);
+            }else {
+                $(child).attr(attribute, $(child).attr(attribute).replace(ending, '-section'+self.iterations+ending));
+            }
         }
 
         function getEnding(identifier){
@@ -187,9 +232,41 @@ JFormSection = Class.extend({
         $.each(this.jFormComponents, function(key, component){
             var componentTempOptions = $.extend(true, {}, component.options);
             componentTempOptions.isInstance = false;
-           var componentClone = new window[component.type](instanceObject, component.id+'-section'+self.iterations, component.type, componentTempOptions);
-           instanceObject.addComponent(componentClone);
+            var componentClone = new window[component.type](instanceObject, component.id+'-section'+self.iterations, component.type, componentTempOptions);
+            instanceObject.addComponent(componentClone);
         });
+
+        $.each(instanceObject.JFormComponents, function(key, instancedComponent) {
+            if(instancedComponent.options.dependencyOptions != undefined){
+                var objectTop = self.parentJFormPage.form;
+
+                // Define the dependent on component
+                var dependentOnComponent = objectTop.select(instancedComponent.options.dependencyOptions.dependentOn);
+
+                // Check to see if the dependentOn component is within in same section
+                if(self.section.find('#'+instancedComponent.options.dependencyOptions.dependentOn+'-wrapper').length != 0) {
+                    // If the component that is dependentOn is inside the instanced section, use the instanced section's component as the dependentOn
+                    //console.log(instanceObject.formComponents[instancedComponent.options.dependencyOptions.dependentOn+'-section'+self.iterations]);
+                    if(instanceObject.JFormComponents[instancedComponent.options.dependencyOptions.dependentOn+'-section'+self.iterations]) {
+                        //console.log('found it')
+                        dependentOnComponent = instanceObject.JFormComponents[instancedComponent.options.dependencyOptions.dependentOn+'-section'+self.iterations];
+                    }
+                }
+
+                //console.log(dependentOnComponent);
+
+                dependentOnComponent.component.find(':text, textarea').bind('keyup', function(event) {
+                    instancedComponent.checkDependencies();
+                });
+
+                dependentOnComponent.component.bind('formComponent:changed', function(event) {
+                    instancedComponent.checkDependencies();
+                });
+
+                instancedComponent.checkDependencies();
+            }
+        });
+
         return instanceObject;
     },
 
@@ -207,9 +284,9 @@ JFormSection = Class.extend({
                     
                 }
             }
-       });
-       //this.parentJFormPage.jFormer.jFormPageWrapper.dequeue();
-       this.parentJFormPage.jFormer.adjustHeight(animationOptions);
+        });
+        //this.parentJFormPage.jFormer.jFormPageWrapper.dequeue();
+        this.parentJFormPage.jFormer.adjustHeight(animationOptions);
     },
 
     addComponent: function(component) {
@@ -260,18 +337,18 @@ JFormSection = Class.extend({
         var self = this;
         if($.isArray(data)) {
             $.each(data, function(index, instance){
-               if(index !== 0 && self.instanceArray[index] == undefined){
-                   self.addSectionInstance();
-               }
-               $.each(instance, function(key, componentData){
-                   if(index !== 0){
-                    key = key + '-section'+(index+1);
-                   }
-                   if(self.instanceArray[index].jFormComponents[key] != undefined){
-                       self.instanceArray[index].jFormComponents[key].setData(componentData)
-                   }
-               });
-               /*$.each(self.instanceArray[index].jFormComponents, function(key, component){
+                if(index !== 0 && self.instanceArray[index] == undefined){
+                    self.addSectionInstance();
+                }
+                $.each(instance, function(key, componentData){
+                    if(index !== 0){
+                        key = key + '-section'+(index+1);
+                    }
+                    if(self.instanceArray[index].jFormComponents[key] != undefined){
+                        self.instanceArray[index].jFormComponents[key].setData(componentData)
+                    }
+                });
+            /*$.each(self.instanceArray[index].jFormComponents, function(key, component){
                    
                    component.setData(instance[key]);
                });*/
@@ -316,7 +393,9 @@ JFormSection = Class.extend({
             if(self.parentJFormPage.jFormer.initializing) {
                 if(!disable && addButton.is(':hidden')){
                     addButton.show();
-                    self.parentJFormPage.jFormer.adjustHeight({adjustHeightDuration:0});
+                    self.parentJFormPage.jFormer.adjustHeight({
+                        adjustHeightDuration:0
+                    });
                 }
             }
             elementsToDisable = elementsToDisable.add(addButton);
@@ -334,9 +413,9 @@ JFormSection = Class.extend({
                         self.parentJFormPage.jFormer.adjustHeight(animationOptions);
                     } else {
                         if(animationOptions.appearEffect === 'fade'){
-                        elementsToDisable.fadeOut(animationOptions.hideDuration, function() {
-                            self.parentJFormPage.jFormer.adjustHeight(animationOptions);
-                        });
+                            elementsToDisable.fadeOut(animationOptions.hideDuration, function() {
+                                self.parentJFormPage.jFormer.adjustHeight(animationOptions);
+                            });
                         }else if(animationOptions.appearEffect === 'slide'){
                             elementsToDisable.slideUp(animationOptions.hideDuration, function() {
                                 self.parentJFormPage.jFormer.adjustHeight(animationOptions);
@@ -348,7 +427,9 @@ JFormSection = Class.extend({
                 // Lock the section and disable all inputs
                 else {
                     elementsToDisable.addClass('jFormSectionDependencyDisabled').find(':not(.jFormComponentDisabled) > :input').attr('disabled', 'disabled');
-                    this.parentJFormPage.jFormer.adjustHeight({adjustHeightDuration:0}); // Handle if they are showing a border on the DependencyDisabled class
+                    this.parentJFormPage.jFormer.adjustHeight({
+                        adjustHeightDuration:0
+                    }); // Handle if they are showing a border on the DependencyDisabled class
                 }
             }
             // Show or unlock the section
@@ -357,27 +438,43 @@ JFormSection = Class.extend({
                 if(this.options.dependencyOptions.display == 'hide') {
                     if(animationOptions.appearEffect == 'none' || animationOptions.appearDuration === 0){
                         elementsToDisable.show();
-                        self.parentJFormPage.jFormer.adjustHeight(animationOptions);
-                    } else {
-                        if(animationOptions.hideEffect === 'fade'){
-                            elementsToDisable.fadeIn(animationOptions.appearDuration);
-                            self.parentJFormPage.jFormer.adjustHeight(animationOptions);
-                        }else if(animationOptions.hideEffect === 'slide'){
-                            elementsToDisable.slideDown(animationOptions.appearDuration);
-                            self.parentJFormPage.jFormer.adjustHeight(animationOptions);
+                        self.parentJFormPage.form.adjustHeight(animationOptions);
+                        if(self.options.dependencyOptions.onAfterEnable) {
+                            //console.log('Running: ', self.options.dependencyOptions.onAfterEnable);
+                            eval(self.options.dependencyOptions.onAfterEnable);
                         }
                     }
-                    //console.log('showing section');
+                    else {
+                        if(animationOptions.hideEffect === 'fade') {
+                            elementsToDisable.fadeIn(animationOptions.appearDuration, function() {
+                                if(self.options.dependencyOptions.onAfterEnable) {
+                                    //console.log('Running: ', self.options.dependencyOptions.onAfterEnable);
+                                    eval(self.options.dependencyOptions.onAfterEnable);
+                                }
+                            });
+                            self.parentJFormPage.form.adjustHeight(animationOptions);
+                        }
+                        else if(animationOptions.hideEffect === 'slide'){
+                            elementsToDisable.slideDown(animationOptions.appearDuration, function() {
+                                if(self.options.dependencyOptions.onAfterEnable) {
+                                    //console.log('Running: ', self.options.dependencyOptions.onAfterEnable);
+                                    eval(self.options.dependencyOptions.onAfterEnable);
+                                }
+                            });
+                            self.parentJFormPage.form.adjustHeight(animationOptions);
+                        }
+                    }
+                //console.log('showing section');
                 }
                 // Unlock the section and reenable all inputs that aren't manually disabled
                 else {
                     elementsToDisable.removeClass('jFormSectionDependencyDisabled').find(':not(.jFormComponentDisabled) > :input').removeAttr('disabled');
-                    this.parentJFormPage.jFormer.adjustHeight({adjustHeightDuration:0}); // Handle if they are showing a border on the DependencyDisabled class
+                    this.parentJFormPage.jFormer.adjustHeight({
+                        adjustHeightDuration:0
+                    }); // Handle if they are showing a border on the DependencyDisabled class
                 }
-
                 this.checkChildrenDependencies();
             }
-
             this.disabledByDependency = disable;
         }
     },
@@ -386,11 +483,15 @@ JFormSection = Class.extend({
         var self = this;
         if(this.options.dependencyOptions !== null) {
             // Run the dependency function
-            //console.log(self.options.dependencyOptions.jsFunction);
-            //console.log(eval(self.options.dependencyOptions.jsFunction));
             var disable = !(eval(self.options.dependencyOptions.jsFunction));
             this.disableByDependency(disable);
         }
+
+        // Handle instances
+        $.each(this.instanceArray, function(index, formSectionInstance) {
+            //console.log('checking dependencies on ', formSectionInstance.id);
+            formSectionInstance.checkChildrenDependencies();
+        });
     },
 
     checkChildrenDependencies: function() {

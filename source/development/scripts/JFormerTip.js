@@ -17,13 +17,18 @@
     {
         var self = this;
         elem = jQuery(elem);
-      
         var wrappedContent = ['<span class="tipArrow"></span><div class="tipContent">',conf.content.html(),'</div>'].join('');
+
+        if(conf.persistent){
+            wrappedContent = ['<span class="tipArrow"></span><div class="tipContent">',conf.content.html(),'<span class="jformerTipClose">x</span></div>'].join('');
+        }
+        else {
+            wrappedContent = ['<span class="tipArrow"></span><div class="tipContent">',conf.content.html(),'</div>'].join('');
+        }
+        
 
         var tooltip = jQuery(conf.content)
         .addClass(conf.baseClass)
-        .addClass( (conf.fixed) ? conf.fixedClass : '' )
-        .addClass( (conf.persistent) ? conf.persistentClass : '' )
         .html(wrappedContent);
 
         // Add an event listener that listens for a window resize and repositions the element
@@ -34,55 +39,9 @@
             
         });
 
-        if(!conf.hidden) tooltip.show();
-        else tooltip.hide();
-
-        if(!conf.persistent)
-        {
-            elem.hover(
-                function(event){
-                    self.show(event)
-                },
-                function(){
-                    self.hide()
-                }
-                );
-
-            if(!conf.fixed)
-            {
-                elem.mousemove( function(event){
-                    if(tooltip.css('display') !== 'none') self.updatePos(event);
-                });
-            };
-        }
-        else
-        {
-            elem.click(function(event)
-            {
-                if(event.target === elem.get(0))
-                {
-            //if(tooltip.css('display') !== 'none')
-            // self.hide();
-            // else
-            //self.show();
-            }
-            });
-
-            jQuery(window).mousedown(function(event)
-            {
-                if(tooltip.css('display') !== 'none')
-                {
-                    var check = (conf.focus) ? jQuery(event.target).parents('.tooltip').andSelf().filter(function(){
-                        return this === tooltip.get(0)
-                    }).length : 0;
-                //if(check === 0) self.hide();
-                };
-            });
-        };
-
-
         jQuery.extend(self,
         {
+            persistent: conf.persistent,
             getVersion: function()
             {
                 return [1, 2, 0];
@@ -129,14 +88,18 @@
                 switch(conf.showEffect)
                 {
                     case 'fade':
-                        tooltip.fadeIn(conf.showTime); break;
+                        tooltip.fadeIn(conf.showTime);
+                        break;
                     case 'slide':
-                        tooltip.slideDown(conf.showTime, self.updatePos); break;
+                        tooltip.slideDown(conf.showTime, self.updatePos);
+                        break;
                     case 'custom':
-                        conf.showCustom.call(tooltip, conf.showTime); break;
+                        conf.showCustom.call(tooltip, conf.showTime);
+                        break;
                     default:
                     case 'none':
-                        tooltip.show(); break;
+                        tooltip.show();
+                        break;
                 };
 
                 tooltip.addClass(conf.activeClass);
@@ -155,14 +118,18 @@
                 switch(conf.hideEffect)
                 {
                     case 'fade':
-                        tooltip.fadeOut(conf.hideTime); break;
+                        tooltip.fadeOut(conf.hideTime);
+                        break;
                     case 'slide':
-                        tooltip.slideUp(conf.hideTime); break;
+                        tooltip.slideUp(conf.hideTime);
+                        break;
                     case 'custom':
-                        conf.hideCustom.call(tooltip, conf.hideTime); break;
+                        conf.hideCustom.call(tooltip, conf.hideTime);
+                        break;
                     default:
                     case 'none':
-                        tooltip.hide(); break;
+                        tooltip.hide();
+                        break;
                 };
 
                 tooltip.removeClass(conf.activeClass);
@@ -176,9 +143,7 @@
 
             update: function(content)
             {
-                
-                //tooltip.html(content);
-
+                tooltip.html(content);
                 return self;
             },
 

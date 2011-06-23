@@ -97,12 +97,13 @@
 .jFormer .jFormComponentMultipleChoiceTipIcon  { display: inline-block; width: 16px; height: 20px; background: url(images/help.png) no-repeat 0 3px; }
 .jFormer .jFormComponentMultipleChoiceTip .tipArrow { margin-top: 3px !important; }
 .jFormer .jFormComponentMultipleChoiceTip .tipContent { top: -23px !important; }
+.jFormer .jformerTipClose { position: absolute; top:0px; right:5px; cursor: pointer; font-size: .75em; }
 
 /* Components */
 .jFormer .jFormComponent { padding: .25em .8em .5em .5em; overflow: hidden; margin-bottom: 3px; border: 1px solid transparent; float: left; clear: both; -moz-border-radius: 5px; -webkit-border-radius: 5px; }
-.jFormer .jFormComponent input { font-family: Arial; font-size: .8em; padding: 3px .35em; background: #EEEEEE url('images/input-bg.gif') repeat-x 0 1px scroll; border: 1px solid #AAA; }
-.jFormer .jFormComponent select { font-family: Arial; font-size: .8em; background: #EEEEEE; border: 1px solid #AAA; }
-.jFormer .jFormComponent textarea { font-family: Arial; font-size: .8em; padding: 3px .35em; background: url('images/input-bg.gif') repeat-x 0 1px scroll #EEEEEE; border: 1px solid #AAA; resize:none;}
+.jFormer .jFormComponent input { font-family: Arial; font-size: .8em; padding: 3px .35em; background: #EEEEEE url('images/input-bg.gif') repeat-x 0 1px scroll; border: 1px solid #AAA; outline:none; }
+.jFormer .jFormComponent select { font-family: Arial; font-size: .8em; background: #EEEEEE; border: 1px solid #AAA; outline:none; }
+.jFormer .jFormComponent textarea { font-family: Arial; font-size: .8em; padding: 3px .35em; background: url('images/input-bg.gif') repeat-x 0 1px scroll #EEEEEE; border: 1px solid #AAA; resize:none; outline:none;}
 .jFormer .jFormComponent .defaultValue { color: #666666; }
 .jFormer .jFormComponent .jFormComponentDescription { clear: both; margin: .5em 0 0 0; }
 .jFormer .jFormComponentHighlight { background-color: #DFEFFF; border: 1px solid #C2D7EF; }

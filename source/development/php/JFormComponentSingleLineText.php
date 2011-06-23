@@ -348,7 +348,7 @@ class JFormComponentSingleLineText extends JFormComponent {
         $messageArray = array();
 
         // Perform the server side check with a scrape
-        $serverSideResponse = Network::getUrlContent($options['url'].'&value='.$options['value']);
+        $serverSideResponse = getUrlContent($options['url'].'&value='.$options['value']);
 
         // Can't read the URL
         if($serverSideResponse['status'] != 'success') {
@@ -366,6 +366,32 @@ class JFormComponentSingleLineText extends JFormComponent {
         }
 
         return $messageArray;
+
+        function getUrlContent($url, $postData = null) {
+            // Handle objects and arrays
+            $curlHandler = curl_init();
+            curl_setopt($curlHandler, CURLOPT_URL, $url);
+            curl_setopt($curlHandler, CURLOPT_FAILONERROR, 1);
+            curl_setopt($curlHandler, CURLOPT_TIMEOUT, 20); // Time out in seconds
+            curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, 1);
+            if ($postData != null) {
+                foreach ($postData as $key => &$value) {
+                    if (is_object($value) || is_array($value)) {
+                        $value = json_encode($value);
+                    }
+                }
+                curl_setopt($curlHandler, CURLOPT_POSTFIELDS, $postData);
+            }
+            $request = curl_exec($curlHandler);
+
+            if (!$request) {
+                $response = array('status' => 'failure', 'response' => 'CURL error ' . curl_errno($curlHandler) . ': ' . curl_error($curlHandler));
+            } else {
+                $response = array('status' => 'success', 'response' => $request);
+            }
+
+            return $response;
+        }
     }
 
     public function ssn($options) {
