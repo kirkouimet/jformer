@@ -79,8 +79,10 @@ JFormSection = Class.extend({
             var instanceClone;
 
             // Do not use a clone of the first section if the section HTML has already been generated
+
             if(sectionHtmlExists) {
-                instanceClone = $('#'+this.id+'-section'+this.iterations);
+				instanceClone = $('#'+this.id+'-section'+this.iterations);
+				
             }
             else {
                 instanceClone = this.clone.clone();
@@ -91,7 +93,7 @@ JFormSection = Class.extend({
 
             // Create the remove button
             var removeButtonId = this.id+'-removeInstance',
-            removeButton = '<button id="'+removeButtonId+'" class="formSectionRemoveInstanceButton">'+this.options.instanceOptions.removeButtonText+'</button>';
+            removeButton = '<button id="'+removeButtonId+'" class="jFormSectionRemoveInstanceButton">'+this.options.instanceOptions.removeButtonText+'</button>';
 
             // Set the default animation options
             var animationOptions = {};
@@ -102,7 +104,7 @@ JFormSection = Class.extend({
             }
             //console.log(animationOptions);
             $(instanceClone).append(removeButton);
-            instanceClone.find('#'+buttonId).bind('click', function(event){
+            instanceClone.find('#'+removeButtonId).bind('click', function(event){
                 var target = $(event.target);
                 event.preventDefault();
                 parent.instanceArray = $.map(parent.instanceArray, function(cloneId, index){
@@ -170,7 +172,6 @@ JFormSection = Class.extend({
                 }
             }
 
-            this.nameSectionInstance(instanceClone);
             var instanceObject = this.createSectionInstanceObject(instanceClone, this.options);
             this.instanceArray.push(instanceObject);
 
@@ -236,7 +237,7 @@ JFormSection = Class.extend({
             instanceObject.addComponent(componentClone);
         });
 
-        $.each(instanceObject.JFormComponents, function(key, instancedComponent) {
+        $.each(instanceObject.jFormComponents, function(key, instancedComponent) {
             if(instancedComponent.options.dependencyOptions != undefined){
                 var objectTop = self.parentJFormPage.form;
 
@@ -247,9 +248,9 @@ JFormSection = Class.extend({
                 if(self.section.find('#'+instancedComponent.options.dependencyOptions.dependentOn+'-wrapper').length != 0) {
                     // If the component that is dependentOn is inside the instanced section, use the instanced section's component as the dependentOn
                     //console.log(instanceObject.formComponents[instancedComponent.options.dependencyOptions.dependentOn+'-section'+self.iterations]);
-                    if(instanceObject.JFormComponents[instancedComponent.options.dependencyOptions.dependentOn+'-section'+self.iterations]) {
+                    if(instanceObject.jFormComponents[instancedComponent.options.dependencyOptions.dependentOn+'-section'+self.iterations]) {
                         //console.log('found it')
-                        dependentOnComponent = instanceObject.JFormComponents[instancedComponent.options.dependencyOptions.dependentOn+'-section'+self.iterations];
+                        dependentOnComponent = instanceObject.jFormComponents[instancedComponent.options.dependencyOptions.dependentOn+'-section'+self.iterations];
                     }
                 }
 

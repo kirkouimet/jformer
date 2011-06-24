@@ -1,10 +1,14 @@
-jFormer version 1.0.1
+jFormer version 1.1
 
 http://www.jformer.com/
 
 
 
 Change log:
+
+June 24, 2011
+
+Minor updates. Removed production code, you'll have to build that on your own now using the -concat scripts. Otherwise you'll have to include a million JS files.
 
 March 11, 2011
 
