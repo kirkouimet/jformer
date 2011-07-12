@@ -37,6 +37,12 @@ JFormComponentSingleLineText = JFormComponent.extend({
                 var errorMessageArray = ['Must be a valid Canadian postal code.'];
                 return options.value == '' || options.value.match(/^[ABCEGHJKLMNPRSTVXY][0-9][A-Z] [0-9][A-Z][0-9]$/)  ? 'success' : errorMessageArray;
             },
+            'custom_regexp': function(options) {
+                var errorMessageArray = [options.custom_regexp.custom_message];
+                var sm = options.custom_regexp.regexp.substring(1,sm.length-1);						
+                var regular_expression = RegExp(sm);
+                return options.value.match(regular_expression) ? 'success' : errorMessageArray;
+            },
             'date': function(options) {
                 var errorMessageArray = ['Must be a date in the mm/dd/yyyy format.'];
                 return options.value == '' || options.value.match(/^(0?[1-9]|1[012])[\- \/.](0?[1-9]|[12][0-9]|3[01])[\- \/.](19|20)[0-9]{2}$/)  ? 'success' : errorMessageArray;

@@ -141,7 +141,7 @@ class JFormComponentSingleLineText extends JFormComponent {
     }
     
     public function custom_regexp() {
-        $messageArray = array($options['custom_regexp']['message']);
+        $messageArray = array($options['custom_regexp']['custom_message']);
         return preg_match ($options['custom_regexp']['regexp'], $options['value']) ? 'success' : $messageArray;
     }
     
