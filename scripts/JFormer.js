@@ -1257,12 +1257,12 @@ showAlert: function(message, jFormComponentType, modal, options){
     if(animationOptions.appearEffect == 'slide'){
         alertWrapper.slideDown(animationOptions.appearDuration, function(){
             // hide the message
-            setTimeout(hideAlert(), 1000);
+            setTimeout(hideAlert, 1000);
         });
-    } else if(animationOptions.appearAffect == 'fade') {
+    } else if(animationOptions.appearEffect == 'fade') {
         alertWrapper.fadeIn(animationOptions.appearDuration, function(){
             // hide the message
-            setTimeout(hideAlert(), 1000);
+            setTimeout(hideAlert, 1000);
         });
     }
 
