@@ -1,4 +1,3 @@
-
 JFormComponentSingleLineText = JFormComponent.extend({
     init: function(parentJFormSection, jFormComponentId, jFormComponentType ,options) {
         this._super(parentJFormSection, jFormComponentId, jFormComponentType ,options);
@@ -66,9 +65,7 @@ JFormComponentSingleLineText = JFormComponent.extend({
             'decimalZeroNegative': function(options) {
                 // Must be negative and have a decimal value
                 var errorMessageArray = ['Must be zero or a negative number without any commas. Decimal is optional.'];
-                var isDecimal = self.validations.decimal({
-                    "value":options.value
-                });
+                var isDecimal = this.decimal(options);
                 return options.value == '' || (isDecimal == 'success' && (parseFloat(options.value) <= 0)) ? 'success' : errorMessageArray;
             },
             'decimalZeroPositive': function(options) {
@@ -108,25 +105,26 @@ JFormComponentSingleLineText = JFormComponent.extend({
             'isbn': function(options) {
                 //Match an ISBN
                 var errorMessageArray = ['Must be a valid ISBN and consist of either ten or thirteen characters.'];
+                var success = false;
                 //For ISBN-10
                 if(options.value.match(/^(?=.{13}$)\d{1,5}([\- ])\d{1,7}\1\d{1,6}\1(\d|X)$/)) {
-                    errorMessageArray = 'sucess';
+                    success = true;
                 }
                 if(options.value.match(/^\d{9}(\d|X)$/)) {
-                    errorMessageArray = 'sucess';
+                    success = true;
                 }
                 //For ISBN-13
                 if(options.value.match(/^(?=.{17}$)\d{3}([\- ])\d{1,5}\1\d{1,7}\1\d{1,6}\1(\d|X)$/)) {
-                    errorMessageArray = 'sucess';
+                    success = true;
                 }
                 if(options.value.match(/^\d{3}[\- ]\d{9}(\d|X)$/)) {
-                    errorMessageArray = 'sucess';
+                    success = true;
                 }
                 //ISBN-13 without starting delimiter (Not a valid ISBN but less strict validation was requested)
                 if(options.value.match(/^\d{12}(\d|X)$/)) {
-                    errorMessageArray = 'sucess';
+                    success = true;
                 }
-                return errorMessageArray;
+                return options.value == '' || success ? 'success' : errorMessageArray;
             },
             'length' : function(options) {
                 var errorMessageArray = ['Must be exactly ' + options.length + ' characters long. Current value is '+ options.value.length +' characters.'];
@@ -200,7 +198,7 @@ JFormComponentSingleLineText = JFormComponent.extend({
             },
             'postalZip': function(options) {
                 var errorMessageArray = ['Must be a valid United States zip code, Canadian postal code, or United Kingdom postal code.']
-                return options.value == '' || this.zip(options) == 'success' || this.canadianPostal(options) == 'success' || this.ukPostal() == 'success' ? 'success' : errorMessageArray;
+                return options.value == '' || this.zip(options) == 'success' || this.canadianPostal(options) == 'success' || this.ukPostal(options) == 'success' ? 'success' : errorMessageArray;
             },
             'required': function(options) {
                 var errorMessageArray = ['Required.'];
@@ -248,11 +246,11 @@ JFormComponentSingleLineText = JFormComponent.extend({
                 return options.value == '' || options.value.match(/^\d{3}-?\d{2}-?\d{4}$/i)  ? 'success' : errorMessageArray;
             },
             'teenager': function(options) {
-                var errorMessageArray = 'Must be at least 13 years old.',
-                birthday = new Date(options.value),
-                now = new Date(),
-                limit = new Date(now.getFullYear() - 13 , now.getMonth(), now.getDate()),
-                timeDifference = (limit - birthday);
+                var errorMessageArray = ['Must be at least 13 years old.'];
+                var birthday = new Date(options.value);
+                var now = new Date();
+                var limit = new Date(now.getFullYear() - 13 , now.getMonth(), now.getDate());
+                var timeDifference = (limit - birthday);
                 return options.value == '' || timeDifference >= 0  ? 'success' : errorMessageArray;
             },
             'time': function(options) {
