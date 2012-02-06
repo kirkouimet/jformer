@@ -142,7 +142,7 @@ DateInput = (function($) {
                     this.changeInput($(event.target).attr("date"));
                 }));
       
-                $("td[date=\"" + this.dateToString(new Date()) + "\"]", this.tbody).addClass("jFormComponentDateSelectorToday");
+                $('td[date="' + this.dateToString(new Date()) + '"]', this.tbody).addClass("jFormComponentDateSelectorToday");
       
                 $("td.jFormComponentDateSelectorSelectedDay", this.tbody).mouseover(function() {
                     $(this).addClass("hover")
