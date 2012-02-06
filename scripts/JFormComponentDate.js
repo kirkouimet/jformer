@@ -23,8 +23,8 @@ JFormComponentDate = JFormComponent.extend({
                     return errorMessageArray;
                 }
 
-                var month = parseInt(options.value.month);
-                var day = parseInt(options.value.day);
+                var month = parseInt(options.value.month,10);
+                var day = parseInt(options.value.day,10);
                 var year = options.value.year;
                 var badDay = false;
                 if(!year.match(/[\d]{4}/)){
