@@ -152,7 +152,7 @@ JFormComponentSingleLineText = JFormComponent.extend({
             },
             'maxFloat': function(options) {
                 //Value cannot have more digits then specified in maxFloat
-                var errorMessageArray = 'Must be numeric and cannot have more than ' + options.maxFloat + ' decimal place(s).',
+                var errorMessageArray = ['Must be numeric and cannot have more than ' + options.maxFloat + ' decimal place(s).'];
                 maxFloatPattern = new RegExp('^-?((\\d+(\\.\\d{0,'+ options.maxFloat + '})?)|(\\.\\d{0,' + options + '}))$');
                 return options.value == '' || options.value.match(maxFloatPattern) ? 'success' : errorMessageArray;
             },
