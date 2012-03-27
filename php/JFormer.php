@@ -491,13 +491,13 @@ class JFormer {
                         $this->setStatus('failure', array('failureHtml' => $onSubmitErrorMessageArray));
                     }
                 }
-
-                echo '
-                    <script type="text/javascript" language="javascript">
-                        parent.' . $this->id . 'Object.handleFormSubmissionResponse(' . json_encode($this->getStatus()) . ');
-                    </script>
-                ';
-
+                if($this->useIframeTarget){  
+                    echo '
+                        <script type="text/javascript" language="javascript">
+                            parent.' . $this->id . 'Object.handleFormSubmissionResponse(' . json_encode($this->getStatus()) . ');
+                        </script>
+                    ';
+                }
                 //echo json_encode($this->getValues());
 
                 exit();
@@ -584,9 +584,10 @@ class JFormer {
     function getHtml() {
         $this->updateRequiredText($this->requiredText);
         // Create the form
+        $target = $this->useIframeTarget ? $this->id . '-iframe' : '';
         $jFormElement = new JFormElement('form', array(
                     'id' => $this->id,
-                    'target' => $this->id . '-iframe',
+                    'target' => $target,
                     'enctype' => 'multipart/form-data',
                     'method' => 'post',
                     'class' => $this->class,
