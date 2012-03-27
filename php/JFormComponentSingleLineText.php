@@ -80,7 +80,7 @@ class JFormComponentSingleLineText extends JFormComponent {
                 $input->setAttribute('style', 'width: '.$this->width.';');
             }
         }
-        if(!empty($this->initialValue)) {
+        if(isset($this->initialValue)) {
             $input->setAttribute('value', $this->initialValue);
         }
         if(!empty($this->maxLength)) {
