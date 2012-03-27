@@ -47,6 +47,7 @@ class JFormer {
     var $clientSideValidation = true;
     var $debugMode = false;
     var $validationTips = true;
+    var $useIframeTarget = true; // use hidden iframe for form processing, normal form post if false    
     // Page navigator
     var $pageNavigatorEnabled = false;
     var $pageNavigator = array();
