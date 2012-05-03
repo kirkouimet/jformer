@@ -140,6 +140,11 @@ class JFormComponentSingleLineText extends JFormComponent {
         return preg_match('/^[ABCEGHJKLMNPRSTVXY][0-9][A-Z] [0-9][A-Z][0-9]$/', $options['value']) || $options['value'] == '' ? 'success' : $messageArray;
     }
     
+    public function custom_regexp() {
+        $messageArray = array($options['custom_regexp']['custom_message']);
+        return preg_match ($options['custom_regexp']['regexp'], $options['value']) ? 'success' : $messageArray;
+    }
+    
     public function date($options) {
         $messageArray = array('Must be a date in the mm/dd/yyyy format.');
         return preg_match('/^(0?[1-9]|1[012])[\- \/.](0?[1-9]|[12][0-9]|3[01])[\- \/.](19|20)[0-9]{2}$/', $options['value']) || $options['value'] == '' ? 'success' : $messageArray;
