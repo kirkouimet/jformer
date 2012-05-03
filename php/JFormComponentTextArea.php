@@ -97,7 +97,7 @@ class JFormComponentTextArea extends JFormComponent {
         if($this->wrap) {
             $textArea->setAttribute('wrap', $this->wrap);
         }
-        if(!empty($this->initialValue)) {
+        if(isset($this->initialValue)) {
             $textArea->update($this->initialValue);
         }
         $div->insert($textArea);
