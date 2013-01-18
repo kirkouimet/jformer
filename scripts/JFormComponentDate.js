@@ -74,11 +74,10 @@ JFormComponentDate = JFormComponent.extend({
             },
             'teenager': function(options) {
                 var errorMessageArray = ['You must be at least 13 years old to use this site.'];
-                var birthday = new Date(options.value.year, options.value.month, options.value.day);
-                var now = new Date();
-                var limit = new Date(now.getFullYear() - 13 , now.getMonth(), now.getDate());
-                var timeDifference = (limit - birthday);
-                return options.value == '' || timeDifference >= 0  ? 'success' : errorMessageArray;
+                var birthday = self.getDateFromObject(options.value);
+                var limit = new Date();
+                limit.setFullYear(limit.getFullYear() - 13);
+                return options.value == '' || birthday <= limit ? 'success' : errorMessageArray;
             }
         }
     },

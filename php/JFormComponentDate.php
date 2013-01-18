@@ -123,13 +123,26 @@ class JFormComponentDate extends JFormComponentSingleLineText {
         return sizeof($errorMessageArray) < 1 ? 'success' : $errorMessageArray;
     }
     public function teenager($options) {
-        if($this->date($options) == 'success') {
-            $oldEnough = strtotime($options['value']->day.'/'.$options['value']->month.'/'.$options['value']->year) - strtotime('-13 years');
+        $errorMessageArray = array();
+        $month = intval($options['value']->month);
+        $day = intval($options['value']->day);
+        $year = intval($options['value']->year);
+        $error = false;
+        if(!empty($year) && !empty($month) && !empty($day)) {
+            if(strtotime($year.'-'.$month.'-'.$day) > strtotime('-13 years')) {
+                $error = true;
+            }
         }
+        // If they did not provide a date, validate true
         else {
-            return false;
+            return 'success';
         }
-        return $oldEnough >= 0  ? 'success' : $messageArray;
+
+        if($error) {
+            array_push($errorMessageArray, 'You must be at least 13 years old to use this site.');
+        }
+
+        return sizeof($errorMessageArray) < 1 ? 'success' : $errorMessageArray;
     }
 }
 
