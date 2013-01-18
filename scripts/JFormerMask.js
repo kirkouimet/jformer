@@ -89,12 +89,12 @@
 				input.data("buffer", buffer).data("tests", tests);
 
 				function seekNext(pos) {
-					while (++pos <= len && !tests[pos]);
+					while (++pos <= len && !tests[pos]) {}
 					return pos;
 				};
 
 				function shiftL(pos) {
-					while (!tests[pos] && --pos >= 0);
+					while (!tests[pos] && --pos >= 0) {}
 					for (var i = pos; i < len; i++) {
 						if (tests[i]) {
 							buffer[i] = settings.placeholder;

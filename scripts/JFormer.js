@@ -213,9 +213,7 @@ JFormer = Class.extend({
                         });
                     }
                 });
-                if(jFormSection.options.isInstance){
-                //formPage.formSections[formSection.id]
-                }
+
                 // Check if there are pregenerated instances and add them
                 jFormSection.addInitialSectionInstances();
 
