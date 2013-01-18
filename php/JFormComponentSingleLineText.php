@@ -254,7 +254,7 @@ class JFormComponentSingleLineText extends JFormComponent {
     }
 
     public function matches($options) {
-        $componentToMatch = $this->parentJFormSection->parentJFormPage->jFormer->selectJFormComponent($options['matches']);
+        $componentToMatch = $this->parentJFormSection->parentJFormPage->jFormer->select($options['matches']);
         if($componentToMatch && $componentToMatch->value == $options['value']) {
             return 'success';
         }
