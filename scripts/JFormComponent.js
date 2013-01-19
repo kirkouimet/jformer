@@ -221,9 +221,6 @@ JFormComponent = Class.extend({
         // Add the highlight class and trigger the highlight
         this.component.addClass('jFormComponentHighlight').trigger('jFormComponent:highlighted', this.component);
         this.component.trigger('jFormComponent:showTip', this.component);
-        if(this.tip !== null){
-
-        }
     },
 
     removeHighlight: function() {

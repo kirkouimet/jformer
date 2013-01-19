@@ -213,9 +213,7 @@ JFormer = Class.extend({
                         });
                     }
                 });
-                if(jFormSection.options.isInstance){
-                //formPage.formSections[formSection.id]
-                }
+
                 // Check if there are pregenerated instances and add them
                 jFormSection.addInitialSectionInstances();
 
@@ -606,7 +604,7 @@ setupPageScroller: function(options) {
 
     // Scroll to the current page (prevent weird Firefox bug where the page does not display on soft refresh
     if(options.scrollToPage) {
-        self.scrollToPage(self.currentFormPage.id, options);
+        self.scrollToPage(self.currentJFormPage.id, options);
     }
 },
 
@@ -762,7 +760,7 @@ scrollToPage: function(jFormPageId, options) {
         formPage = self.options.splashPage.formPage;
     }
     else {
-        formPage = this.formPages[jFormPageId];
+        formPage = this.jFormPages[jFormPageId];
     }
 
     if(formPage && formPage.options.onScrollTo.onBefore !== null) {
@@ -846,9 +844,9 @@ scrollToPage: function(jFormPageId, options) {
                 }
 
                 // Run any specific page functions
-                //console.log(self.currentFormPage);
-                if(self.currentFormPage.options.onScrollTo.onAfter) {
-                    self.currentFormPage.options.onScrollTo.onAfter();
+                //console.log(self.currentJFormPage);
+                if(self.currentJFormPage.options.onScrollTo.onAfter) {
+                    self.currentJFormPage.options.onScrollTo.onAfter();
                 }
 
                 // Setup the controls
@@ -1160,9 +1158,9 @@ handleFormSubmissionResponse: function(json) {
             clearInterval(this.saveIntervalSetTimeoutId);
 
             // Create the success page html
-            var successPageDiv = $('<div id="'+this.id+'formPageSuccess" class="formPage formPageSuccess">'+json.response.successPageHtml+'</div>');
-            successPageDiv.css('width', this.formPages[this.formPageIdArray[0]].page.width());
-            this.jFormPageScroller.css('width', this.jFormPageScroller.width() + this.formPages[this.formPageIdArray[0]].page.width());
+            var successPageDiv = $('<div id="'+this.id+'jFormPageSuccess" class="jFormPage jFormPageSuccess">'+json.response.successPageHtml+'</div>');
+            successPageDiv.css('width', this.jFormPages[this.jFormPageIdArray[0]].page.width());
+            this.jFormPageScroller.css('width', this.jFormPageScroller.width() + this.jFormPages[this.jFormPageIdArray[0]].page.width());
             this.jFormPageScroller.append(successPageDiv);
 
             // Create the success page
