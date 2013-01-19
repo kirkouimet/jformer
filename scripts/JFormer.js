@@ -760,7 +760,7 @@ scrollToPage: function(jFormPageId, options) {
         formPage = self.options.splashPage.formPage;
     }
     else {
-        formPage = this.formPages[jFormPageId];
+        formPage = this.jFormPages[jFormPageId];
     }
 
     if(formPage && formPage.options.onScrollTo.onBefore !== null) {
@@ -1159,8 +1159,8 @@ handleFormSubmissionResponse: function(json) {
 
             // Create the success page html
             var successPageDiv = $('<div id="'+this.id+'formPageSuccess" class="formPage formPageSuccess">'+json.response.successPageHtml+'</div>');
-            successPageDiv.css('width', this.formPages[this.formPageIdArray[0]].page.width());
-            this.jFormPageScroller.css('width', this.jFormPageScroller.width() + this.formPages[this.formPageIdArray[0]].page.width());
+            successPageDiv.css('width', this.jFormPages[this.jFormPageIdArray[0]].page.width());
+            this.jFormPageScroller.css('width', this.jFormPageScroller.width() + this.jFormPages[this.jFormPageIdArray[0]].page.width());
             this.jFormPageScroller.append(successPageDiv);
 
             // Create the success page
