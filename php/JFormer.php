@@ -395,24 +395,24 @@ class JFormer {
     }
 
     function select($id) {
-        foreach ($this->jFormPageArray as $jformPageId => &$jformPage) {
-            if ($id === $jformPageId) {
-                return $jformPage;
+        foreach ($this->jFormPageArray as $jFormPageId => &$jFormPage) {
+            if ($id === $jFormPageId) {
+                return $jFormPage;
             }
-            foreach ($jformPage->jformSectionArray as $jformSectionId => &$jformSection) {
-                if ($id === $jformSectionId) {
-                    return $jformSection;
+            foreach ($jFormPage->jFormSectionArray as $jFormSectionId => &$jFormSection) {
+                if ($id === $jFormSectionId) {
+                    return $jFormSection;
                 }
-                foreach ($jformSection->jformComponentArray as $jformComponentId => &$jformComponent) {
-                    if (is_array($jformComponent)) {
-                        foreach ($jformComponent as $sectionInstanceComponentId => &$sectionInstanceComponent) {
+                foreach ($jFormSection->jFormComponentArray as $jFormComponentId => &$jFormComponent) {
+                    if (is_array($jFormComponent)) {
+                        foreach ($jFormComponent as $sectionInstanceComponentId => &$sectionInstanceComponent) {
                             if ($id === $sectionInstanceComponentId) {
                                 return $sectionInstanceComponent;
                             }
                         }
                     }
-                    if ($id === $jformComponentId) {
-                        return $jformComponent;
+                    if ($id === $jFormComponentId) {
+                        return $jFormComponent;
                     }
                 }
             }
@@ -421,22 +421,22 @@ class JFormer {
     }
 
     function remove($id) {
-        foreach ($this->formPageArray as $formPageId => &$formPage) {
-            if ($id == $formPageId) {
-                $this->formPageArray[$formPageId] = null;
-                array_filter($this->formPageArray);
+        foreach ($this->jFormPageArray as $jFormPageId => &$jFormPage) {
+            if ($id === $jFormPageId) {
+                $this->jFormPageArray[$jFormPageId] = null;
+                array_filter($this->jFormPageArray);
                 return true;
             }
-            foreach ($formPage->formSectionArray as $formSectionId => &$formSection) {
-                if ($id == $formSectionId) {
-                    $this->formPageArray[$formPageId]->formSectionArray[$formSectionId] = null;
-                    array_filter($this->formPageArray[$formPageId]->formSectionArray);
+            foreach ($jFormPage->jFormSectionArray as $jFormSectionId => &$jFormSection) {
+                if ($id === $jFormSectionId) {
+                    $jFormPage->jFormSectionArray[$jFormSectionId] = null;
+                    array_filter($jFormPage->jFormSectionArray);
                     return true;
                 }
-                foreach ($formSection->formComponentArray as $formComponentId => &$formComponent) {
-                    if ($id == $formComponentId) {
-                        $this->formPageArray[$formPageId]->formSectionArray[$formSectionId]->formComponentArray[$formComponentId] = null;
-                        array_filter($this->formPageArray[$formPageId]->formSectionArray[$formSectionId]->formComponentArray);
+                foreach ($jFormSection->jFormComponentArray as $jFormComponentId => &$jFormComponent) {
+                    if ($id === $jFormComponentId) {
+                        $jFormSection->jFormComponentArray[$jFormComponentId] = null;
+                        array_filter($jFormSection->jFormComponentArray);
                         return true;
                     }
                 }
