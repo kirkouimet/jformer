@@ -604,7 +604,7 @@ setupPageScroller: function(options) {
 
     // Scroll to the current page (prevent weird Firefox bug where the page does not display on soft refresh
     if(options.scrollToPage) {
-        self.scrollToPage(self.currentFormPage.id, options);
+        self.scrollToPage(self.currentJFormPage.id, options);
     }
 },
 
@@ -844,9 +844,9 @@ scrollToPage: function(jFormPageId, options) {
                 }
 
                 // Run any specific page functions
-                //console.log(self.currentFormPage);
-                if(self.currentFormPage.options.onScrollTo.onAfter) {
-                    self.currentFormPage.options.onScrollTo.onAfter();
+                //console.log(self.currentJFormPage);
+                if(self.currentJFormPage.options.onScrollTo.onAfter) {
+                    self.currentJFormPage.options.onScrollTo.onAfter();
                 }
 
                 // Setup the controls
