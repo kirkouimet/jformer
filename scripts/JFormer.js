@@ -1158,7 +1158,7 @@ handleFormSubmissionResponse: function(json) {
             clearInterval(this.saveIntervalSetTimeoutId);
 
             // Create the success page html
-            var successPageDiv = $('<div id="'+this.id+'formPageSuccess" class="formPage formPageSuccess">'+json.response.successPageHtml+'</div>');
+            var successPageDiv = $('<div id="'+this.id+'jFormPageSuccess" class="jFormPage jFormPageSuccess">'+json.response.successPageHtml+'</div>');
             successPageDiv.css('width', this.jFormPages[this.jFormPageIdArray[0]].page.width());
             this.jFormPageScroller.css('width', this.jFormPageScroller.width() + this.jFormPages[this.jFormPageIdArray[0]].page.width());
             this.jFormPageScroller.append(successPageDiv);
