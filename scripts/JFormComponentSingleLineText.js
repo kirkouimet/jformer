@@ -231,7 +231,10 @@ JFormComponentSingleLineText = JFormComponent.extend({
                     async: false,
                     success: function(json) {
                         if(json.status != 'success') {
-                            errorMessageArray = json.response;
+                            if($.isArray(json.response))
+                                errorMessageArray = json.response;
+                            else
+                                errorMessageArray = [json.response];
                         }
 
                         options.component.removeClass('jFormComponentServerSideCheck');
