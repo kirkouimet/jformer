@@ -82,7 +82,7 @@ JFormComponentSingleLineText = JFormComponent.extend({
             },
             'email': function(options) {
                 var errorMessageArray = ['Must be a valid e-mail address.'];
-                return options.value == '' || options.value.match(/^[A-Z0-9._%-\+]+@(?:[A-Z0-9\-]+\.)+[A-Z]{2,4}$/i)  ? 'success' : errorMessageArray;
+                return options.value == '' || options.value.match(/^[A-Z0-9._%\-\+]+@(?:[A-Z0-9\-]+\.)+[A-Z]{2,4}$/i)  ? 'success' : errorMessageArray;
             },
             'integer': function(options) {
                 var errorMessageArray = ['Must be a whole number.'];
