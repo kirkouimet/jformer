@@ -77,7 +77,7 @@ class JFormer {
         // Set the action dynamically
         $callingFile = debug_backtrace();
         $callingFile = str_replace("\\", "/", $callingFile[0]['file']);
-        $this->action = str_replace($_SERVER['DOCUMENT_ROOT'], '', $callingFile);
+        $this->action = str_replace(realpath($_SERVER['DOCUMENT_ROOT']), '', realpath($callingFile));
 
         // Use the options array to update the form variables
         if (is_array($optionArray)) {
