@@ -77,7 +77,7 @@ class JFormComponentName extends JFormComponent {
             'name' => $this->name.'-middleInitial',
             'class' => 'middleInitial singleLineText',
             'maxlength' => '1',
-            'value' => $this->initialValues['middleInitial'],
+            'value' => (isset($this->initialValues['middleInitial']) ? $this->initialValues['middleInitial'] : ''),
         ));
         if($this->middleInitialHidden) {
             $middleInitial->setAttribute('style', 'display: none;');

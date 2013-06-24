@@ -17,6 +17,17 @@ require_once('JFormComponentCreditCard.php');
 require_once('JFormComponentLikert.php');
 require_once('JFormComponentHtml.php');
 
+function is_empty($string)
+{
+    $string = trim($string);
+    if (!is_numeric($string))
+    {
+        return empty($string);
+    }
+    return FALSE;
+}
+
+
 class JFormer {
 
     // General settings
@@ -813,7 +824,8 @@ class JFormer {
                     'name' => $this->id . '-iframe',
                     'class' => 'jFormerIFrame',
                     'frameborder' => 0,
-                    'src' => '/empty.html',
+                    'src' => (defined('URLDIR') ? URLDIR : '') . '/jquery/jFormer/jformer.php?iframe=true',
+                    //'src' => '/empty.html',
                         //'src' => str_replace($_SERVER['DOCUMENT_ROOT'], '', __FILE__).'?iframe=true',
                 ));
 

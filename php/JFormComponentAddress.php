@@ -153,7 +153,7 @@ class JFormComponentAddress extends JFormComponent {
             'id' => $this->id.'-zip',
             'name' => $this->name.'-zip',
             'class' => 'zip',
-            'maxlength' => '5',
+            'maxlength' => '6',
         ));
         $zipDiv->insert($zip);
 
