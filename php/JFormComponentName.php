@@ -63,6 +63,7 @@ class JFormComponentName extends JFormComponent {
             'id' => $this->id.'-firstName',
             'name' => $this->name.'-firstName',
             'class' => 'firstName singleLineText',
+			'placeholder' => 'First Name',
             'value' => $this->initialValues['firstName'],
         ));
         $firstNameDiv->insert($firstName);
@@ -95,6 +96,7 @@ class JFormComponentName extends JFormComponent {
             'id' => $this->id.'-lastName',
             'name' => $this->name.'-lastName',
             'class' => 'lastName singleLineText',
+			'placeholder' => 'Last Name',
             'value' => $this->initialValues['lastName'],
         ));
         $lastNameDiv->insert($lastName);

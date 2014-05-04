@@ -149,7 +149,7 @@ class JFormComponentCreditCard extends JFormComponent {
         if($this->showSublabels == false){
             $expirationYear->insert($this->getOption('', 'Year', true, true));
         }
-        foreach(range($startYear, $startYear+9) as $year) {
+        foreach(range($startYear, $startYear+11) as $year) {
             $expirationYear->insert($this->getOption($year, $year, false, false));
         }
         $expirationDateDiv->insert($expirationYear);

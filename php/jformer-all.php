@@ -155,14 +155,17 @@ require_once('JFormComponentCreditCard.php');
 require_once('JFormComponentLikert.php');
 require_once('JFormComponentHtml.php');
 
-function is_empty($string)
+if (!function_exists('is_empty'))
 {
-    $string = trim($string);
-    if (!is_numeric($string))
-    {
-        return empty($string);
-    }
-    return FALSE;
+	function is_empty($string)
+	{
+	    $string = trim($string);
+	    if (!is_numeric($string))
+	    {
+	       return empty($string);
+	    }
+	    return FALSE;
+	}
 }
 
 
@@ -1891,6 +1894,7 @@ class JFormComponentAddress extends JFormComponent {
             'id' => $this->id.'-addressLine1',
             'name' => $this->name.'-addressLine1',
             'class' => 'addressLine1',
+			'placeholder' => 'Enter street address',
         ));
         $addressLine1Div->insert($addressLine1);
 
@@ -1903,6 +1907,7 @@ class JFormComponentAddress extends JFormComponent {
             'id' => $this->id.'-addressLine2',
             'name' => $this->name.'-addressLine2',
             'class' => 'addressLine2',
+			'placeholder' => 'Enter address line 2',
         ));
         $addressLine2Div->insert($addressLine2);
 
@@ -1915,7 +1920,8 @@ class JFormComponentAddress extends JFormComponent {
             'id' => $this->id.'-city',
             'name' => $this->name.'-city',
             'class' => 'city',
-            'maxlength' => '15',
+            'maxlength' => '25',
+			'placeholder' => 'Enter city',
         ));
         $cityDiv->insert($city);
 
@@ -1947,6 +1953,7 @@ class JFormComponentAddress extends JFormComponent {
                 'id' => $this->id.'-state',
                 'name' => $this->name.'-state',
                 'class' => 'state',
+				'placeholder' => 'Enter state/province/region',
             ));
         }
         $stateDiv->insert($state);
@@ -1960,7 +1967,8 @@ class JFormComponentAddress extends JFormComponent {
             'id' => $this->id.'-zip',
             'name' => $this->name.'-zip',
             'class' => 'zip',
-            'maxlength' => '6',
+            'maxlength' => '10',
+			'placeholder' => 'Enter postal/zip code',
         ));
         $zipDiv->insert($zip);
 
@@ -2249,7 +2257,7 @@ class JFormComponentCreditCard extends JFormComponent {
         if($this->showSublabels == false){
             $expirationYear->insert($this->getOption('', 'Year', true, true));
         }
-        foreach(range($startYear, $startYear+9) as $year) {
+        foreach(range($startYear, $startYear+11) as $year) {
             $expirationYear->insert($this->getOption($year, $year, false, false));
         }
         $expirationDateDiv->insert($expirationYear);
@@ -3404,6 +3412,7 @@ class JFormComponentName extends JFormComponent {
             'id' => $this->id.'-firstName',
             'name' => $this->name.'-firstName',
             'class' => 'firstName singleLineText',
+			'placeholder' => 'First Name',
             'value' => $this->initialValues['firstName'],
         ));
         $firstNameDiv->insert($firstName);
@@ -3436,6 +3445,7 @@ class JFormComponentName extends JFormComponent {
             'id' => $this->id.'-lastName',
             'name' => $this->name.'-lastName',
             'class' => 'lastName singleLineText',
+			'placeholder' => 'Last Name',
             'value' => $this->initialValues['lastName'],
         ));
         $lastNameDiv->insert($lastName);
@@ -3516,6 +3526,7 @@ class JFormComponentSingleLineText extends JFormComponent {
         $this->width = '';
         $this->mask = '';
         $this->emptyValue = '';
+		$this->placeholder = '';
 
         // Initialize the abstract FormComponent object
         $this->initialize($optionArray);
@@ -3578,6 +3589,9 @@ class JFormComponentSingleLineText extends JFormComponent {
         }
         if(!empty($this->maxLength)) {
             $input->setAttribute('maxlength', $this->maxLength);
+        }
+        if(!empty($this->placeholder)) {
+            $input->setAttribute('placeholder', $this->placeholder);
         }
         if(!empty($this->mask)){
             $this->formComponentMeta['options']['mask']= $this->mask;
