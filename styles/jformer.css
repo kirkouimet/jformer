@@ -163,16 +163,16 @@
 .jFormer .jFormComponentAddress select:focus {  border: 1px solid #888; }
 .jFormer .jFormComponentAddress .addressLine1Div { display: block; }
 .jFormer .jFormComponentAddress .addressLine1 { width: 24em; }
-.jFormer .jFormComponentAddress .addressLine2Div { display: block; margin-top: .25em; }
+.jFormer .jFormComponentAddress .addressLine2Div { display: block; margin-top: 1em; }
 .jFormer .jFormComponentAddress .addressLine2 { width: 24em; }
-.jFormer .jFormComponentAddress .cityDiv { margin: .25em .5em 0 0; display: block; float: left; }
+.jFormer .jFormComponentAddress .cityDiv { margin: 1em .5em 0 0; display: block; float: left; }
 .jFormer .jFormComponentAddress .city { width: 10em; }
-.jFormer .jFormComponentAddress .stateDiv { margin: .25em 0 0 0; display: block; float: left; }
+.jFormer .jFormComponentAddress .stateDiv { margin: 1em 0 0 0; display: block; float: left; }
 .jFormer .jFormComponentAddress .state { width: 12.1em; }
 .jFormer .jFormComponentAddress select.state { padding: .15em 0em; width: 13.35em; }
-.jFormer .jFormComponentAddress .zipDiv { margin: .25em .5em 0 0; clear: both; display: block; float: left; }
+.jFormer .jFormComponentAddress .zipDiv { margin: 1em .5em 0 0; clear: both; display: block; float: left; }
 .jFormer .jFormComponentAddress .zip { width: 10em; }
-.jFormer .jFormComponentAddress .countryDiv { margin: .25em 0 0 0; display: block; float: left; }
+.jFormer .jFormComponentAddress .countryDiv { margin: 1em 0 0 0; display: block; float: left; }
 .jFormer .jFormComponentAddress .country { width: 13.35em; padding: .15em 0em; }
 
 /* Component Type - CreditCard */
