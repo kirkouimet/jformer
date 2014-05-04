@@ -23,6 +23,7 @@ class JFormComponentSingleLineText extends JFormComponent {
         $this->width = '';
         $this->mask = '';
         $this->emptyValue = '';
+		$this->placeholder = '';
 
         // Initialize the abstract FormComponent object
         $this->initialize($optionArray);
@@ -85,6 +86,9 @@ class JFormComponentSingleLineText extends JFormComponent {
         }
         if(!empty($this->maxLength)) {
             $input->setAttribute('maxlength', $this->maxLength);
+        }
+        if(!empty($this->placeholder)) {
+            $input->setAttribute('placeholder', $this->placeholder);
         }
         if(!empty($this->mask)){
             $this->formComponentMeta['options']['mask']= $this->mask;

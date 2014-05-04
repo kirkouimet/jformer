@@ -17,14 +17,17 @@ require_once('JFormComponentCreditCard.php');
 require_once('JFormComponentLikert.php');
 require_once('JFormComponentHtml.php');
 
-function is_empty($string)
+if (!function_exists('is_empty'))
 {
-    $string = trim($string);
-    if (!is_numeric($string))
-    {
-        return empty($string);
-    }
-    return FALSE;
+	function is_empty($string)
+	{
+	    $string = trim($string);
+	    if (!is_numeric($string))
+	    {
+	       return empty($string);
+	    }
+	    return FALSE;
+	}
 }
 
 
