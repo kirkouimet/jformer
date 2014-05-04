@@ -23,6 +23,7 @@ class JFormComponentSingleLineText extends JFormComponent {
         $this->width = '';
         $this->mask = '';
         $this->emptyValue = '';
+		$this->placeholder = '';
 
         // Initialize the abstract FormComponent object
         $this->initialize($optionArray);
@@ -85,6 +86,9 @@ class JFormComponentSingleLineText extends JFormComponent {
         }
         if(!empty($this->maxLength)) {
             $input->setAttribute('maxlength', $this->maxLength);
+        }
+        if(!empty($this->placeholder)) {
+            $input->setAttribute('placeholder', $this->placeholder);
         }
         if(!empty($this->mask)){
             $this->formComponentMeta['options']['mask']= $this->mask;
@@ -319,8 +323,10 @@ class JFormComponentSingleLineText extends JFormComponent {
     }
 
     public function phone($options) {
-        $messageArray = array('Must be a 10 digit phone number.');
-        return preg_match('/^(1[\-. ]?)?\(?[0-9]{3}\)?[\-. ]?[0-9]{3}[\-. ]?[0-9]{4}$/', $options['value']) || $options['value'] == '' ? 'success' : $messageArray ;
+        //$messageArray = array('Must be a 10 digit phone number.');
+        //return preg_match('/^(1[\-. ]?)?\(?[0-9]{3}\)?[\-. ]?[0-9]{3}[\-. ]?[0-9]{4}$/', $options['value']) || $options['value'] == '' ? 'success' : $messageArray ;
+        $messageArray = array('Must be a US or International Phone Number');
+        return preg_match('/^((\+\d{1,3}(-| )?\(?\d\)?(-| )?\d{1,5})|(\(?\d{2,6}\)?))(-| )?(\d{3,4})(-| )?(\d{4})(( x| ext)\d{1,5}){0,1}$/', $options['value']) || $options['value'] == '' ? 'success' : $messageArray;
     }
 
     public function postalZip($options) {

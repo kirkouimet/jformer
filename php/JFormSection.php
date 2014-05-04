@@ -121,7 +121,9 @@ class JFormSection {
         else {
             // Go through each component
             foreach($jFormSectionData as $jFormComponentKey => $jFormComponentValue) {
-                $this->jFormComponentArray[$jFormComponentKey]->setValue($jFormComponentValue);
+                if (!is_null($this->jFormComponentArray[$jFormComponentKey])) {
+                    $this->jFormComponentArray[$jFormComponentKey]->setValue($jFormComponentValue);
+                }
             }
         }
     }

@@ -63,6 +63,7 @@ class JFormComponentName extends JFormComponent {
             'id' => $this->id.'-firstName',
             'name' => $this->name.'-firstName',
             'class' => 'firstName singleLineText',
+			'placeholder' => 'First Name',
             'value' => $this->initialValues['firstName'],
         ));
         $firstNameDiv->insert($firstName);
@@ -77,7 +78,7 @@ class JFormComponentName extends JFormComponent {
             'name' => $this->name.'-middleInitial',
             'class' => 'middleInitial singleLineText',
             'maxlength' => '1',
-            'value' => $this->initialValues['middleInitial'],
+            'value' => (isset($this->initialValues['middleInitial']) ? $this->initialValues['middleInitial'] : ''),
         ));
         if($this->middleInitialHidden) {
             $middleInitial->setAttribute('style', 'display: none;');
@@ -95,6 +96,7 @@ class JFormComponentName extends JFormComponent {
             'id' => $this->id.'-lastName',
             'name' => $this->name.'-lastName',
             'class' => 'lastName singleLineText',
+			'placeholder' => 'Last Name',
             'value' => $this->initialValues['lastName'],
         ));
         $lastNameDiv->insert($lastName);

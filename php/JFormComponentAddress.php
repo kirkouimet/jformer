@@ -84,6 +84,7 @@ class JFormComponentAddress extends JFormComponent {
             'id' => $this->id.'-addressLine1',
             'name' => $this->name.'-addressLine1',
             'class' => 'addressLine1',
+			'placeholder' => 'Enter street address',
         ));
         $addressLine1Div->insert($addressLine1);
 
@@ -96,6 +97,7 @@ class JFormComponentAddress extends JFormComponent {
             'id' => $this->id.'-addressLine2',
             'name' => $this->name.'-addressLine2',
             'class' => 'addressLine2',
+			'placeholder' => 'Enter address line 2',
         ));
         $addressLine2Div->insert($addressLine2);
 
@@ -108,7 +110,8 @@ class JFormComponentAddress extends JFormComponent {
             'id' => $this->id.'-city',
             'name' => $this->name.'-city',
             'class' => 'city',
-            'maxlength' => '15',
+            'maxlength' => '25',
+			'placeholder' => 'Enter city',
         ));
         $cityDiv->insert($city);
 
@@ -140,6 +143,7 @@ class JFormComponentAddress extends JFormComponent {
                 'id' => $this->id.'-state',
                 'name' => $this->name.'-state',
                 'class' => 'state',
+				'placeholder' => 'Enter state/province/region',
             ));
         }
         $stateDiv->insert($state);
@@ -153,7 +157,8 @@ class JFormComponentAddress extends JFormComponent {
             'id' => $this->id.'-zip',
             'name' => $this->name.'-zip',
             'class' => 'zip',
-            'maxlength' => '5',
+            'maxlength' => '10',
+			'placeholder' => 'Enter postal/zip code',
         ));
         $zipDiv->insert($zip);
 

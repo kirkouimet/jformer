@@ -117,7 +117,7 @@ class JFormElement {
             $element.= '>'.$this->innerHtml.'</'.$this->type.'>';
         }
         else {
-            $element.= ' />';
+            $element.= ' >';
         }
 
         // Don't format the XML string, saves time
