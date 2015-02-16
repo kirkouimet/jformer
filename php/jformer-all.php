@@ -3704,7 +3704,7 @@ class JFormComponentSingleLineText extends JFormComponent {
 
     public function integer($options) {
         $messageArray = array('Must be a whole number.');
-        return preg_match('/^-?\d+$/', $options['value']) ? 'success' : $messageArray;
+        return preg_match('/^(-\d+|\d*)$/', $options['value']) ? 'success' : $messageArray;
     }
 
     public function integerNegative($options) {
